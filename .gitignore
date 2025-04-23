@@ -1,2 +1,10 @@
 *.txt
 *.sqlite3
+
+​#Django
+db.sqlite3
+
+
+# migrations folder
+**/migrations/
+**/__pycache__/
