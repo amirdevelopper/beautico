@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en" dir="rtl">
+
+<!-- Mirrored from demo-egenslab.b-cdn.net/html/beautico/preview-rtl/index2.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 04 Aug 2024 12:16:31 GMT -->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="{% static "shop/assets/css/bootstrap.rtl.min.css" %}" rel="stylesheet">
+
+    <link href="{% static 'shop/assets/css/bootstrap-icons.css' %}" rel="stylesheet">
+    <link href="{% static 'shop/assets/css/all.min.css' %}" rel="stylesheet">
+    <link href="{% static 'shop/assets/css/nice-select.css' %}" rel="stylesheet">
+    <link href="{% static 'shop/assets/css/animate.min.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'shop/assets/css/jquery.fancybox.min.css' %}">
+    <link href="{% static 'shop/assets/css/fontawesome.min.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'shop/assets/css/boxicons.min.css' %}">
+    <link rel="stylesheet" href="{% static 'shop/assets/css/swiper-bundle.min.css' %}">
+    <link rel="stylesheet" href="{% static 'shop/assets/css/slick-theme.css' %}">
+    <link rel="stylesheet" href="{% static 'shop/assets/css/slick.css' %}">
+    <link rel="stylesheet" href="{% static 'shop/assets/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'shop/assets/css/style-rtl.css' %}">
+    <title>{% block title %}{% endblock title %}</title>
+    <link rel="icon" href="{% static 'shop/assets/img/sm-logo.svg' %}" type="image/gif">
+</head>
+
+<body>
+
+    {% include "header.html" %}
+
+    {% block content %}
+    {% endblock content %}
+
+    {% include "footer.html" %}
+    
+    <script src="{% static 'shop/assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'shop/assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'shop/assets/js/jquery.nice-select.min.js' %}"></script>
+    <script src="{% static 'shop/assets/js/jquery.fancybox.min.js' %}"></script>
+    <script src="{% static 'shop/assets/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'shop/assets/js/slick.js' %}"></script>
+    <script src="{% static 'shop/assets/js/swiper-bundle.min.js' %}"></script>
+    <script src="{% static 'shop/assets/js/waypoints.min.js' %}"></script>
+    <script src="{% static 'shop/assets/js/main.js' %}"></script>
+
+</body>
+
+</html>
