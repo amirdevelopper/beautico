@@ -1,0 +1,14 @@
+{% extends "base_shop.html" %}
+
+{% block content %}
+{% include "header.html" %}
+
+<div class="login-container w-100 d-flex justify-content-center flex-row">
+    <form method="post" class="w-50 mb-5 mt-5 p-2">
+        {% csrf_token %}
+        {{ content|safe }}
+    </form>
+</div>
+
+{% include "footer.html" %}
+{% endblock %}

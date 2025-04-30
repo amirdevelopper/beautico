@@ -68,15 +68,19 @@
                 </a>
                 <div class="cart-btn-area">
                   <div class="cart-btn">
-                    <a href="{% url "add_cart_url" new_product.product.id %}" class="add-cart-btn2 round hover-btn5">
-                      <i class="bi bi-bag-check"></i> افزودن به سبد خرید
-                    </a>
+                    <form method="post" action="{% url 'add_cart_url' %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="product_id" value="{{ new_product.product.id }}">
+                      <button type="submit" class="add-cart-btn2 round hover-btn5">
+                        <i class="bi bi-bag-check"></i> افزودن به سبد خرید
+                      </button>
+                    </form>
                   </div>
                 </div>
                 <div class="view-and-favorite-area">
                   <ul>
                     <li>
-                      <a href="whistlist.html">
+                      <a href="{% url "add_to_wishlist_url" new_product.product.id %}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 13 13">
                           <g clip-path="url(#clip0_1106_270)">
                             <path d="M11.1281 2.35735C10.8248 2.03132 10.4577 1.77117 10.0496 1.59305C9.64144 1.41493 9.20104 1.32266 8.75574 1.32197C8.31008 1.32248 7.86929 1.41462 7.46073 1.59266C7.05218 1.7707 6.6846 2.03084 6.38081 2.35692L6.17153 2.57807L5.96225 2.35692C4.74378 1.04552 2.69289 0.970207 1.38151 2.18868C1.32339 2.24269 1.26727 2.29881 1.21326 2.35692C-0.0793057 3.75111 -0.0793057 5.90577 1.21326 7.29996L5.86398 12.2044C6.02488 12.3743 6.29301 12.3816 6.46288 12.2207C6.46844 12.2154 6.47385 12.21 6.47911 12.2044L11.1281 7.29996C12.4206 5.90592 12.4206 3.75139 11.1281 2.35735ZM10.5151 6.7166H10.5147L6.17153 11.2974L1.82797 6.7166C0.840522 5.65131 0.840522 4.00515 1.82797 2.93986C2.72468 1.96795 4.23954 1.90701 5.21144 2.80373C5.25862 2.84726 5.30404 2.89268 5.34757 2.93986L5.86398 3.48467C6.03416 3.65376 6.30893 3.65376 6.47911 3.48467L6.99552 2.94028C7.89224 1.96838 9.40709 1.90744 10.379 2.80415C10.4262 2.84769 10.4716 2.8931 10.5151 2.94028C11.5112 4.00726 11.5185 5.65642 10.5151 6.7166Z" />
@@ -190,7 +194,13 @@
               </a>
               <div class="cart-btn-area">
                 <div class="cart-btn">
-                  <a href="{% url "add_cart_url" special_product.product.id %}" class="add-cart-btn2 round hover-btn5"><i class="bi bi-bag-check"></i> افزودن به سبد خرید</a>
+                  <form method="post" action="{% url 'add_cart_url' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="product_id" value="{{ new_product.product.id }}">
+                    <button type="submit" class="add-cart-btn2 round hover-btn5">
+                      <i class="bi bi-bag-check"></i> افزودن به سبد خرید
+                    </button>
+                  </form>
                 </div>
               </div>
               <div class="view-and-favorite-area">
@@ -390,6 +400,7 @@
     </div>
     <div class="row g-4">
 
+      {% comment %} یک بلاگ {% endcomment %}
       <div class="col-lg-6">
         <div class="article-card style-2">
           <div class="article-image">
@@ -416,83 +427,6 @@
         </div>
       </div>
 
-      <div class="col-lg-6">
-        <div class="article-card style-2">
-          <div class="article-image">
-            <a href="blog-details.html" class="article-card-img hover-img">
-              <img src="assets/img/home2/latest-article-img2.png" alt>
-            </a>
-          </div>
-          <div class="article-card-content">
-            <div class="tag two">
-              <span>۲۲ تیر، ۱۴۰۲</span>
-              <ul>
-                <li>
-                  <a href="blog-grid.html">زیبایی</a>
-                </li>
-                <li>
-                  <a href="blog-grid.html">آرایش</a>
-                </li>
-              </ul>
-            </div>
-            <h5><a href="blog-details.html" class="hover-underline">اهمیت مراقبت‌های پوست و زیبایی.</a></h5>
-            <p>توسعه نرم‌افزار فرآیند ایجاد یک نرم‌افزار کامپیوتری است......</p>
-            <a href="blog-details.html">ادامه مطلب</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-lg-6">
-        <div class="article-card style-2">
-          <div class="article-image">
-            <a href="blog-details.html" class="article-card-img hover-img">
-              <img src="assets/img/home2/latest-article-img3.png" alt>
-            </a>
-          </div>
-          <div class="article-card-content">
-            <div class="tag two">
-              <span>۳۰ خرداد، ۱۴۰۲</span>
-              <ul>
-                <li>
-                  <a href="blog-grid.html">زیبایی</a>
-                </li>
-                <li>
-                  <a href="blog-grid.html">آرایش</a>
-                </li>
-              </ul>
-            </div>
-            <h5><a href="blog-details.html" class="hover-underline">نکات طلایی برای انتخاب محصولات زیبایی.</a></h5>
-            <p>توسعه نرم‌افزار فرآیند ایجاد یک نرم‌افزار کامپیوتری است......</p>
-            <a href="blog-details.html">ادامه مطلب</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-lg-6">
-        <div class="article-card style-2">
-          <div class="article-image">
-            <a href="blog-details.html" class="article-card-img hover-img">
-              <img src="assets/img/home2/latest-article-img4.png" alt>
-            </a>
-          </div>
-          <div class="article-card-content">
-            <div class="tag two">
-              <span>۱۵ اردیبهشت، ۱۴۰۲</span>
-              <ul>
-                <li>
-                  <a href="blog-grid.html">زیبایی</a>
-                </li>
-                <li>
-                  <a href="blog-grid.html">آرایش</a>
-                </li>
-              </ul>
-            </div>
-            <h5><a href="blog-details.html" class="hover-underline">راهنمای انتخاب بهترین لوازم آرایش.</a></h5>
-            <p>توسعه نرم‌افزار فرآیند ایجاد یک نرم‌افزار کامپیوتری است......</p>
-            <a href="blog-details.html">ادامه مطلب</a>
-          </div>
-        </div>
-      </div>
 
     </div>
   </div>

@@ -1,12 +1,11 @@
 {% include "base_shop.html" %}
+{% load static %}
+{% load humanize %}
+
 
 {% block content %}
 {% include "header.html" %}
 
-
-
-{% include "footer.html" %}
-{% endblock content %}
 
 <div class="whistlist-section mt-110 mb-110">
   <div class="container">
@@ -28,39 +27,38 @@
                 {% for item in wish_list %}
                   <tr>
                     <td>
-                      <form method="post" action="{% url 'remove_from_wishlist' item.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="delete-icon" style="background:none;border:none;">
-                          <i class="bi bi-x-lg"></i>
-                        </button>
-                      </form>
+                      {% csrf_token %}
+                        <a href="{% url "remove_from_wishlist_url" item.id %}" class="delete-icon" style="background:none;border:none;">
+                        <i class="bi bi-x-lg"></i>
+                        </a>
                     </td>
                     <td data-label="Product" class="table-product">
                       <div class="product-img">
-                        <img src="{{ item.image.url }}" alt="{{ item.title }}">
+                        <img src="{{ item.image1.url }}" alt="{{ item.name }}">
                       </div>
                       <div class="product-content">
-                        <h6><a href="{% url 'product_detail' item.id %}">{{ item.title }}</a></h6>
+                        <h6><a href="{% url 'show_product_url' item.id %}">{{ item.name }}</a></h6>
                       </div>
                     </td>
                     <td data-label="Price">
                       <p class="price">
-                        {% if item.old_price %}
-                          <del>{{ item.old_price|floatformat:2 }} تومان</del>
+                        {% if item.special_price %}
+                          <del>{{ item.price|intcomma }} تومان</del>
                         {% endif %}
-                        {{ item.price|floatformat:2 }} تومان
+                        {{ item.special_price|intcomma }} تومان
                       </p>
                     </td>
                     <td data-label="Stock">
-                      {% if item.in_stock %}
+                      {% if item.stock != 0%}
                         <span>موجود</span>
                       {% else %}
                         <span class="text-danger">ناموجود</span>
                       {% endif %}
                     </td>
                     <td>
-                      {% if item.in_stock %}
-                        <form method="post" action="{% url 'add_to_cart' item.id %}">
+                      {% if item.stock != 0%}
+                        
+                        <form method="post" action="{% url 'add_cart_url' item.id %}" style="display:inline;">
                           {% csrf_token %}
                           <button type="submit" class="add-cart-btn hover-btn2">
                             <i class="bi bi-bag-check"></i>افزودن به سبد خرید
@@ -85,20 +83,6 @@
   </div>
 </div>
 
-<div class="gift-section">
-  <img src="assets/img/home1/gift-card-img1.png" alt="تصویر کارت هدیه 1" class="gift-img1">
-  <img src="assets/img/home1/gift-card-img2.png" alt="تصویر کارت هدیه 2" class="gift-img2">
-  <div class="container-lg container-fluid">
-    <div class="gift-wrapper">
-      <h5>کارت هدیه بیوتیکو</h5>
-      <div class="gift-card-content">
-        <p>هر طور که تابستان شما به نظر می‌رسد، با کارت‌های هدیه لومن برند با تخفیف تا 25% حرارت خود را به نمایش بگذارید. </p>
-      </div>
-      <a href="gift-card.html" class="primary-btn1 hover-btn3">*خرید کارت‌های هدیه*</a>
-    </div>
-  </div>
-</div>
+{% include "footer.html" %}
+{% endblock content %}
 
-<!-- Mirrored from demo-egenslab.b-cdn.net/html/beautico/preview-rtl/whistlist.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 04 Aug 2024 12:16:56 GMT -->
-
-</html>

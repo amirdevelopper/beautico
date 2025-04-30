@@ -22,7 +22,15 @@ class SubCategory(models.Model):
     def __str__(self):
         return f"{self.category.name} - {self.name}"
 
+class VerifyCode(models.Model):
+    code = models.CharField(max_length=10)
+    name = models.CharField(max_length=50)
+    username = models.CharField(max_length=100, null=True, blank=True)
+    email = models.CharField(max_length=100)
+    password = models.CharField(max_length=100)
 
+    def __str__(self):
+        return f"{self.email} --> {self.code}"
 
 class Product(models.Model):
     subcategory = models.ForeignKey(
@@ -103,20 +111,10 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name="items", on_delete=models.CASCADE)
     product = models.ForeignKey("Product", on_delete=models.CASCADE)
     stock = models.IntegerField()
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(max_digits=10, decimal_places=0)
 
     def __str__(self):
         return f"{self.product.name} x {self.stock}"
-
-
-class Wishlist(models.Model):
-    customer = models.OneToOneField(
-        User, related_name="wishlist", on_delete=models.CASCADE
-    )
-    products = models.ManyToManyField("Product", related_name="wishlists", blank=True)
-
-    def __str__(self):
-        return f"{self.customer.username}'s Wishlist"
 
 
 class Cart(models.Model):
@@ -149,29 +147,6 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.product.name} - {self.rating}"
-
-
-class Shipment(models.Model):
-    order = models.OneToOneField(Order, on_delete=models.CASCADE)
-    tracking_code = models.CharField(max_length=100, blank=True, null=True)
-    carrier = models.CharField(max_length=100)  # نام شرکت پستی
-    shipped_at = models.DateTimeField(blank=True, null=True)
-    delivered_at = models.DateTimeField(blank=True, null=True)
-
-    def __str__(self):
-        return f"Shipment for Order #{self.order.id}"
-
-
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
-    birth_date = models.DateField(blank=True, null=True)
-    gender = models.CharField(
-        max_length=10, choices=[("male", "مرد"), ("female", "زن")], blank=True
-    )
-
-    def __str__(self):
-        return self.user.username
 
 
 class TopBanner(models.Model):

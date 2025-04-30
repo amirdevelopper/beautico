@@ -7,6 +7,11 @@ class WishSessionManager:
         key = f"wish_{user.id}"
         return self.session.get(key, [])
 
+    def set_wish(self, user, wish_list):
+        key = f"wish_{user.id}"
+        self.session[key] = wish_list
+        self.session.modified = True
+
     def add_wish(self, user, wish_item):
         wishes = self.get_wish(user)
         if wish_item not in wishes:

@@ -2,6 +2,9 @@ from django.utils.html import format_html
 from django.contrib import admin
 from .models import *
 
+
+admin.site.register(VerifyCode)
+
 @admin.register(BannerProduc)
 class BannerProducAdmin(admin.ModelAdmin):
     list_display = ['product', 'thumbnail']
@@ -54,11 +57,6 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderItemInline]
 
 
-@admin.register(Wishlist)
-class WishlistAdmin(admin.ModelAdmin):
-    list_display = ['customer']
-    filter_horizontal = ['products']
-
 
 class CartItemInline(admin.TabularInline):
     model = CartItem
@@ -77,16 +75,6 @@ class ReviewAdmin(admin.ModelAdmin):
     list_filter = ['approved', 'created_at']
     search_fields = ['user__username', 'product__name']
 
-
-@admin.register(Shipment)
-class ShipmentAdmin(admin.ModelAdmin):
-    list_display = ['order', 'carrier', 'tracking_code', 'shipped_at', 'delivered_at']
-    search_fields = ['order__id', 'tracking_code']
-
-
-@admin.register(UserProfile)
-class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ['user', 'gender', 'birth_date']
 
 
 @admin.register(TopBanner)
