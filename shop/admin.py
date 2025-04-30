@@ -26,18 +26,12 @@ class SubCategoryAdmin(admin.ModelAdmin):
     search_fields = ['name', 'slug']
 
 
-@admin.register(Color)
-class ColorAdmin(admin.ModelAdmin):
-    list_display = ['name', 'hex_value']
-    search_fields = ['name']
-
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ['name', 'subcategory', 'price', 'special_price', 'available', 'is_special', 'stock']
     list_filter = ['subcategory', 'available', 'is_special', 'created_at']
     search_fields = ['name', 'description']
-    filter_horizontal = ['colors']
     readonly_fields = ['created_at', 'discount_percent']
 
 

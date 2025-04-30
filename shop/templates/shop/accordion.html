@@ -124,22 +124,14 @@
                       oninput="if(this.value > this.max) { this.value = this.max; alert('حداکثر تعداد مجاز برای خرید {{ limit.0.max_purchase_limit }} است.'); }">
                 </div>
               </div>
-              <div class="quantity-color">
-                <h6 class="widget-title">رنگبندی</h6>
-                <ul class="color-list">
-                  {% for color in product.colors.all %}
-                    <li class="select-wrap" title="{{color.name}}"><span style="background-color: {{ color.hex_value }} !important;"></span></li>
-                  {% endfor %}
-                </ul>
-              </div>
             </div>
             <div class="shop-details-btn">
-              <a href="#" class="primary-btn1 hover-btn3">*افزودن به سبد خرید*</a>
+              <a href="{% url "add_cart_url" product.id %}" class="primary-btn1 hover-btn3">*افزودن به سبد خرید*</a>
             </div>
 
             <div class="product-info">
               <ul class="product-info-list">
-                <li> <span>کد محصول:</span> {{product.id}}</li>
+                <li> <span>کد محصول:</span> {{ product.id }}</li>
                 <li> <span>دسته‌بندی:</span> <a href="shop-slider.html">{{product.subcategory}}</li>
               </ul>
             </div>
@@ -147,7 +139,7 @@
             <div class="compare-wishlist-area">
               <ul>
                 <li>
-                  <a href="#">
+                  <a href="{% url "add_to_wishlist_url" %}">
                     <span>
                       <svg width="11" height="11" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
                         <g clip-path="url(#clip0_168_378)">

@@ -23,17 +23,6 @@ class SubCategory(models.Model):
         return f"{self.category.name} - {self.name}"
 
 
-class Color(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    hex_value = models.CharField(
-        max_length=7
-    )  # برای ذخیره کد رنگ به صورت Hex (مثل #FFFFFF)
-    
-
-    def __str__(self):
-        return self.name
-
-
 
 class Product(models.Model):
     subcategory = models.ForeignKey(
@@ -55,7 +44,6 @@ class Product(models.Model):
     publish = models.BooleanField(default=True)
 
     # ویژگی‌های جدید
-    colors = models.ManyToManyField(Color, related_name="products", blank=True)
     is_special = models.BooleanField(default=False)
 
     def __str__(self):

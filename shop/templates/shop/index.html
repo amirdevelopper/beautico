@@ -23,7 +23,7 @@
                         <h1 class="w-100">{{product.product.name}}</h1>
                         <h3><strong>{{ product.product.description|truncatechars:50 }}</strong></h3>
                       <p></p>
-                      <a href="shop-list.html" class="primary-btn3 black-bg hover-btn5 hover-white">خرید اکنون</a>
+                      <a href="{% url "show_product_url" product.product.id %}" class="primary-btn3 black-bg hover-btn5 hover-white">خرید اکنون</a>
                     </div>
 
                   </div>
@@ -63,12 +63,12 @@
                 <span>جدید</span>
               </div>
               <div class="product-card-img">
-                <a href="shop-list.html">
+                <a href="{% url "show_product_url" new_product.product.id %}">
                   <img src="{{ new_product.product.image1.url }}" alt>
                 </a>
                 <div class="cart-btn-area">
                   <div class="cart-btn">
-                    <a href="cart.html" class="add-cart-btn2 round hover-btn5">
+                    <a href="{% url "add_cart_url" new_product.product.id %}" class="add-cart-btn2 round hover-btn5">
                       <i class="bi bi-bag-check"></i> افزودن به سبد خرید
                     </a>
                   </div>
@@ -98,21 +98,15 @@
                 </div>
               </div>
               <div class="product-card-content">
-                <p><a href="shop-list.html">{{new_product.product.subcategory}}</a></p>
-                <h6><a href="product-default.html" class="hover-underline">{{new_product.product.name}}</a></h6>
+                <p>
+                  <a href="{% url 'category_shop_url' new_product.product.subcategory.category.slug new_product.product.subcategory.slug %}">
+                  {{ new_product.product.subcategory }}
+                  </a>
+                </p>
+                <h6><a href="{% url "show_product_url" new_product.product.id %}" class="hover-underline">{{new_product.product.name}}</a></h6>
                 {% if new_product.product.special_price %}
                   <span>{{new_product.product.special_price|intcomma}} <del>{{new_product.product.price|intcomma}}</del></span>
                 {% endif %}
-                <div class="rating">
-                  <ul>
-                    <li><i class="bi bi-star-fill"></i></li>
-                    <li><i class="bi bi-star-fill"></i></li>
-                    <li><i class="bi bi-star-fill"></i></li>
-                    <li><i class="bi bi-star-fill"></i></li>
-                    <li><i class="bi bi-star-fill"></i></li>
-                  </ul>
-                  <span>(50)</span>
-                </div>
               </div>
             </div>
           </div>
@@ -128,7 +122,7 @@
     </div>
 
     <div class="view-product-btn text-center">
-      <a href="shop-list.html" class="primary-btn3 hover-btn5">مشاهده همه محصولات</a>
+      <a href="{% url "products_url" %}" class="primary-btn3 hover-btn5">مشاهده همه محصولات</a>
     </div>
   </div>
 </div>
@@ -147,12 +141,12 @@
         <div class="col-lg-2 col-md-3 col-sm-4">
             <div class="category-card style-2" style="height: 200px; overflow: hidden; display: flex; flex-direction: column;">
             <div class="category-card-img" style="flex: 1; display: flex; justify-content: center; align-items: center; position: relative;">
-              <a href="shop-list.html" style="display: block; width: 100%; height: 100%;">
+                <a href="{% url 'category_shop_url' category.slug "all" %}" style="display: block; width: 100%; height: 100%;">
               <img src="{{category.picture.url}}" alt style="max-height: 100%; max-width: 100%; object-fit: contain; position: absolute; top: 0; left: 0; right: 0; bottom: 0;">
               </a>
             </div>
             <div class="category-card-content" style="flex: 0 0 auto; display: flex; justify-content: center; align-items: center; position: relative; z-index: 1; background-color: white;">
-              <a href="shop-list.html" style="font-size: 12px; text-align: center;">{{category.name}}</a>
+              <a href="{% url 'category_shop_url' category.slug "all" %}" style="font-size: 12px; text-align: center;">{{category.name}}</a>
             </div>
           </div>
         </div>
@@ -169,7 +163,7 @@
       <div class="section-title3">
           <h3>محصولات <span>ویژه</span></h3>
           <div class="view-all">
-            <a href="shop-list.html">مشاهده همه محصولات
+            <a href="{% url "shop_special_url" %}">مشاهده همه محصولات
               <svg width="33" height="13" viewBox="0 0 33 13" xmlns="http://www.w3.org/2000/svg">
                 <path d="M25.5083 7.28L0.491206 7.25429C0.36093 7.25429 0.23599 7.18821 0.143871 7.0706C0.0517519 6.95299 0 6.79347 0 6.62714C0 6.46081 0.0517519 6.3013 0.143871 6.18369C0.23599 6.06607 0.36093 6 0.491206 6L25.5088 6.02571C25.6391 6.02571 25.764 6.09179 25.8561 6.2094C25.9482 6.32701 26 6.48653 26 6.65286C26 6.81919 25.9482 6.9787 25.8561 7.09631C25.764 7.21393 25.6386 7.28 25.5083 7.28Z" />
                 <path d="M33.0001 6.50854C29.2204 7.9435 24.5298 10.398 21.623 13L23.9157 6.50034L21.6317 0C24.5358 2.60547 29.2224 5.06539 33.0001 6.50854Z" />
@@ -186,23 +180,23 @@
           <div class="product-card2">
             <div class="batch">
               {% if special_product.product.special_price %}
-                <span>-{{special_product.discount_percent}}%</span>
+                <span>-{{special_products.product.discount_percent}}%</span>
               {% endif %}
               
             </div>
             <div class="product-card-img">
-              <a href="shop-list.html">
-                <img src="{{special_product.product.image.url}}" alt>
+              <a href="{% url "show_product_url" special_product.product.id %}">
+                <img src="{{special_product.product.image1.url}}" alt>
               </a>
               <div class="cart-btn-area">
                 <div class="cart-btn">
-                  <a href="cart.html" class="add-cart-btn2 round hover-btn5"><i class="bi bi-bag-check"></i> افزودن به سبد خرید</a>
+                  <a href="{% url "add_cart_url" special_product.product.id %}" class="add-cart-btn2 round hover-btn5"><i class="bi bi-bag-check"></i> افزودن به سبد خرید</a>
                 </div>
               </div>
               <div class="view-and-favorite-area">
                 <ul>
                   <li>
-                    <a href="whistlist.html">
+                    <a href="{% url "show_product_url" special_product.product.id %}">
                       <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 13 13">
                         <g clip-path="url(#clip0_1106_270)">
                           <path d="M11.1281 2.35735C10.8248 2.03132 10.4577 1.77117 10.0496 1.59305C9.64144 1.41493 9.20104 1.32266 8.75574 1.32197C8.31008 1.32248 7.86929 1.41462 7.46073 1.59266C7.05218 1.7707 6.6846 2.03084 6.38081 2.35692L6.17153 2.57807L5.96225 2.35692C4.74378 1.04552 2.69289 0.970207 1.38151 2.18868C1.32339 2.24269 1.26727 2.29881 1.21326 2.35692C-0.0793057 3.75111 -0.0793057 5.90577 1.21326 7.29996L5.86398 12.2044C6.02488 12.3743 6.29301 12.3816 6.46288 12.2207C6.46844 12.2154 6.47385 12.21 6.47911 12.2044L11.1281 7.29996C12.4206 5.90592 12.4206 3.75139 11.1281 2.35735ZM10.5151 6.7166H10.5147L6.17153 11.2974L1.82797 6.7166C0.840522 5.65131 0.840522 4.00515 1.82797 2.93986C2.72468 1.96795 4.23954 1.90701 5.21144 2.80373C5.25862 2.84726 5.30404 2.89268 5.34757 2.93986L5.86398 3.48467C6.03416 3.65376 6.30893 3.65376 6.47911 3.48467L6.99552 2.94028C7.89224 1.96838 9.40709 1.90744 10.379 2.80415C10.4262 2.84769 10.4716 2.8931 10.5151 2.94028C11.5112 4.00726 11.5185 5.65642 10.5151 6.7166Z" />
@@ -224,24 +218,17 @@
               </div>
             </div>
             <div class="product-card-content">
-              <p><a href="shop-list.html">{{special_product.product.subcategory}}</a></p>
-              <h6><a href="product-default.html" class="hover-underline">{{special_product.product.name}}</a></h6>
+                <p>
+                <a href="{% url 'category_shop_url' special_product.product.subcategory.category.slug special_product.product.subcategory.slug %}">
+                  {{ special_product.product.subcategory }}
+                </a>
+                </p>
+              <h6><a href="{% url "show_product_url" special_product.product.id %}" class="hover-underline">{{special_product.product.name}}</a></h6>
               {% if special_product.product.special_price %}
                 <span>{{ special_product.product.special_price|intcomma }} تومان <del>{{ special_product.product.price|intcomma }} تومان</del></span>
                 {% else %}
                 <span>{{special_product.product.price|intcomma}}</span>
               {% endif %}
-
-              <div class="rating">
-                <ul>
-                  <li><i class="bi bi-star-fill"></i></li>
-                  <li><i class="bi bi-star-fill"></i></li>
-                  <li><i class="bi bi-star-fill"></i></li>
-                  <li><i class="bi bi-star-fill"></i></li>
-                  <li><i class="bi bi-star-fill"></i></li>
-                </ul>
-                <span>(50)</span>
-              </div>
             </div>
           </div>
         </div> 
@@ -396,40 +383,13 @@
 
 
 
-<div class="newsletter-section style-2 mb-110">
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-12">
-        <div class="newsletter-banner">
-          <img src="assets/img/home2/newsletter-top-left-vector.png" alt class="top-left">
-          <img src="assets/img/home2/newsletter-bottom-left-vector.png" alt class="bottom-left">
-          <img src="assets/img/home2/newsletter-top-right-vector.png" alt class="top-right">
-          <img src="assets/img/home2/newsletter-bottom-right-vector.png" alt class="bottom-right">
-          <div class="newsletter-content">
-            <h2>برای دریافت جدیدترین پیشنهادات و تخفیف‌ها، به خبرنامه ما مشترک شوید.</h2>
-            <form>
-              <div class="from-inner">
-                <div class="from-arrow">
-                  <i class="bi bi-arrow-left"></i>
-                </div>
-                <input type="text" placeholder="آدرس ایمیل">
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-
 <div class="latest-article-section mb-110">
   <div class="container">
     <div class="section-title3 justify-content-center">
-      <h3>مقالات <span>جدید</span></h3>
+      <h3>مقالات <span>با خبر شوید</span></h3>
     </div>
     <div class="row g-4">
+
       <div class="col-lg-6">
         <div class="article-card style-2">
           <div class="article-image">
@@ -455,6 +415,7 @@
           </div>
         </div>
       </div>
+
       <div class="col-lg-6">
         <div class="article-card style-2">
           <div class="article-image">
@@ -480,6 +441,7 @@
           </div>
         </div>
       </div>
+
       <div class="col-lg-6">
         <div class="article-card style-2">
           <div class="article-image">
@@ -505,6 +467,7 @@
           </div>
         </div>
       </div>
+
       <div class="col-lg-6">
         <div class="article-card style-2">
           <div class="article-image">
@@ -530,6 +493,7 @@
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </div>
