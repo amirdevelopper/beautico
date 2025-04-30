@@ -12,6 +12,8 @@ from email.mime.multipart import MIMEMultipart
 import random
 import time
 from django.contrib.auth.models import User
+from django.contrib.auth import logout as auth_logout
+import requests
 
 
 # Create your views here.
@@ -392,154 +394,174 @@ def special(request):
         return render(request, "shop/product_category.html", context)
 
 
-def check_out_order(request):
-    if request.method == "POST":
-        if request.user.is_authenticated:
-            cart, created = Cart.objects.get_or_create(customer=request.user)
-            cart_items = CartItem.objects.filter(cart=cart).select_related("product")
+def check_out_order(request:HttpRequest):
+    if request.user.is_authenticated:
+        if request.method == "POST":
+            if request.user.is_authenticated:
+                cart, created = Cart.objects.get_or_create(customer=request.user)
+                cart_items = CartItem.objects.filter(cart=cart).select_related("product")
 
-            if not cart_items.exists():
-                messages.add_message(request, messages.WARNING, "سبد خرید شما خالی است")
-                return redirect("show_cart_url")
+                if not cart_items.exists():
+                    messages.add_message(request, messages.WARNING, "سبد خرید شما خالی است")
+                    return redirect("show_cart_url")
 
-            subtotal = 0
-            for item in cart_items:
-                price = (
-                    item.product.special_price
-                    if item.product.special_price is not None
-                    else item.product.price
-                )
-                item.total = price * item.stock
-                subtotal += item.total
+                subtotal = 0
+                for item in cart_items:
+                    price = (
+                        item.product.special_price
+                        if item.product.special_price is not None
+                        else item.product.price
+                    )
+                    item.total = price * item.stock
+                    subtotal += item.total
 
-            fname = request.POST.get("fname")
-            lname = request.POST.get("lname")
-            address = request.POST.get("address")
-            city = request.POST.get("city")
-            postcode = request.POST.get("postcode")
-            phone = request.POST.get("phone")
-            email = request.POST.get("email")
-            message = request.POST.get("message")
+                fname = request.POST.get("fname")
+                lname = request.POST.get("lname")
+                address = request.POST.get("address")
+                city = request.POST.get("city")
+                postcode = request.POST.get("postcode")
+                phone = request.POST.get("phone")
+                email = request.POST.get("email")
+                message = request.POST.get("message")
 
-            # اعتبارسنجی فیلدها
-            if (
-                not fname
-                or not lname
-                or not address
-                or not city
-                or not postcode
-                or not phone
-                or not email
-            ):
-                messages.add_message(
-                    request, messages.WARNING, "لطفاً همه فیلدهای ضروری را پر کنید."
-                )
-                return redirect("check_out_order_url")
+                # اعتبارسنجی فیلدها
+                if (
+                    not fname
+                    or not lname
+                    or not address
+                    or not city
+                    or not postcode
+                    or not phone
+                    or not email
+                ):
+                    messages.add_message(
+                        request, messages.WARNING, "لطفاً همه فیلدهای ضروری را پر کنید."
+                    )
+                    return redirect("checkout_url")
 
-            if len(phone) < 11 or not phone.isdigit():
-                messages.add_message(
-                    request, messages.WARNING, "شماره تلفن معتبر نیست."
-                )
-                return redirect("check_out_order_url")
+                if len(phone) < 11 or not phone.isdigit():
+                    messages.add_message(
+                        request, messages.WARNING, "شماره تلفن معتبر نیست."
+                    )
+                    return redirect("check_out_order_url")
 
-            if len(postcode) < 5 or not postcode.isdigit():
-                messages.add_message(request, messages.WARNING, "کد پستی معتبر نیست.")
-                return redirect("check_out_order_url")
+                if len(postcode) < 5 or not postcode.isdigit():
+                    messages.add_message(request, messages.WARNING, "کد پستی معتبر نیست.")
+                    return redirect("check_out_order_url")
 
-            try:
-                validate_email(email)
-            except ValidationError:
-                messages.add_message(request, messages.WARNING, "ایمیل معتبر نیست.")
-                return redirect("check_out_order_url")
+                try:
+                    validate_email(email)
+                except ValidationError:
+                    messages.add_message(request, messages.WARNING, "ایمیل معتبر نیست.")
+                    return redirect("check_out_order_url")
 
-            full_address = f"{fname} {lname}, {address}, {city}, {postcode}, {phone}, {email}\n{message or ''}"
+                full_address = f"{fname} {lname}, {address}, {city}, {postcode}, {phone}, {email}\n{message or ''}"
 
-            order = Order.objects.create(
-                customer=request.user,
-                total_price=int(subtotal) + 60000,
-                addres=full_address,
-            )
+                # زرین‌پال SANDBOX
+                ZARINPAL_MERCHANT_ID = "00000000-0000-0000-0000-000000000000"  # مقدار تست ۳۶ کاراکتری برای sandbox
+                ZARINPAL_REQUEST_URL = "https://sandbox.zarinpal.com/pg/v4/payment/request.json"
+                ZARINPAL_STARTPAY_URL = "https://sandbox.zarinpal.com/pg/StartPay/"
+                ZARINPAL_CALLBACK_URL = request.build_absolute_uri("/zarinpal/verify/")
 
-            for item in cart_items:
-                price = (
-                    item.product.special_price
-                    if item.product.special_price is not None
-                    else item.product.price
-                )
-                OrderItem.objects.create(
-                    order=order,
-                    product=item.product,
-                    stock=item.stock,
-                    price=price,
-                )
+                amount = (int(subtotal) + 60000) * 10  # مبلغ به ریال (تومان × 10)
+                description = "پرداخت سفارش فروشگاه بیوتیکو"
+                metadata = {"mobile": phone, "email": email}
 
-            for item in CartItem.objects.filter(cart__customer=request.user):
-                if item.product.stock is not None:
-                    item.product.stock = max(item.product.stock - item.stock, 0)
-                    item.product.save()
+                data = {
+                    "merchant_id": ZARINPAL_MERCHANT_ID,
+                    "amount": amount,
+                    "callback_url": ZARINPAL_CALLBACK_URL,
+                    "description": description,
+                    "metadata": metadata,
+                }
 
-            cart_items.delete()
+                try:
+                    response = requests.post(
+                        ZARINPAL_REQUEST_URL,
+                        json=data,
+                        headers={"accept": "application/json", "content-type": "application/json"},
+                        timeout=10,
+                    )
+                    result = response.json()
+                    if result.get("data") and int(result["data"].get("code", 0)) == 100:
+                        authority = result["data"]["authority"]
+                        return redirect(f"{ZARINPAL_STARTPAY_URL}{authority}")
+                    else:
+                        messages.warning(request, "خطا در اتصال به درگاه پرداخت: " + str(result.get("errors", "")))
+                        return redirect("checkout_url")
+                except Exception as e:
+                    messages.warning(request, "خطا در ارتباط با درگاه پرداخت.")
+                    return redirect("checkout_url")
 
-            messages.success(request, "سفارش شما با موفقیت ثبت شد.")
-            return redirect("shop_index_url")
+
+                # messages.success(request, "سفارش شما با موفقیت ثبت شد.")
+                # return redirect("shop_index_url")
+
+            else:
+                messages.warning(request, "لطفا ابتدا وارد حساب کاربری خود بشوید")
+                return redirect("shop_index_url")
 
         else:
-            messages.warning(request, "لطفا ابتدا وارد حساب کاربری خود بشوید")
-            return redirect("shop_index_url")
+            if request.user.is_authenticated:
+                cart, created = Cart.objects.get_or_create(customer=request.user)
+                cart_items = CartItem.objects.filter(cart=cart).select_related("product")
 
+                total_price = 0
+                subtotal = 0
+                for item in cart_items:
+                    price = (
+                        item.product.special_price
+                        if item.product.special_price is not None
+                        else item.product.price
+                    )
+                    item.total = price * item.stock
+                    subtotal += item.total
+
+                total_price = subtotal
+
+                product_ids = [item.product.id for item in cart_items]
+                product_limits = {
+                    pl.product_id: pl
+                    for pl in ProductLimit.objects.filter(product_id__in=product_ids)
+                }
+
+                # اضافه کردن ویژگی 'limit' به هر cart_item
+                for item in cart_items:
+                    item.limit = product_limits.get(item.product.id)
+
+                user_profile = None
+                if request.user.is_authenticated:
+                    user_profile = request.user
+
+                # آماده‌سازی context برای ارسال به قالب
+                context = {
+                    "top_banner": TopBanner.objects.filter(active=True).last(),
+                    "categories": Category.objects.all(),
+                    "sub_categories": {
+                        category: SubCategory.objects.filter(category=category)
+                        for category in Category.objects.all()
+                    },
+                    "cart": cart,
+                    "cart_items": cart_items,
+                    "subtotal": subtotal,
+                    "total_price": int(total_price) + 60000,
+                    "limit_products": list(product_limits.values()),
+                    "user_profile": user_profile,
+                    "user_more": UserMore.objects.get_or_create(customer=user_profile)[0],
+                }
+
+                return render(request, "shop/checkout.html", context)
+
+            else:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    message="لطفا ابتدا وارد حساب کاربری خود بشوید",
+                )
+                return redirect("shop_index_url")
     else:
-        if request.user.is_authenticated:
-            cart, created = Cart.objects.get_or_create(customer=request.user)
-            cart_items = CartItem.objects.filter(cart=cart).select_related("product")
-
-            total_price = 0
-            subtotal = 0
-            for item in cart_items:
-                price = (
-                    item.product.special_price
-                    if item.product.special_price is not None
-                    else item.product.price
-                )
-                item.total = price * item.stock
-                subtotal += item.total
-
-            total_price = subtotal
-
-            product_ids = [item.product.id for item in cart_items]
-            product_limits = {
-                pl.product_id: pl
-                for pl in ProductLimit.objects.filter(product_id__in=product_ids)
-            }
-
-            # اضافه کردن ویژگی 'limit' به هر cart_item
-            for item in cart_items:
-                item.limit = product_limits.get(item.product.id)
-
-            # آماده‌سازی context برای ارسال به قالب
-            context = {
-                "top_banner": TopBanner.objects.filter(active=True).last(),
-                "categories": Category.objects.all(),
-                "sub_categories": {
-                    category: SubCategory.objects.filter(category=category)
-                    for category in Category.objects.all()
-                },
-                "cart": cart,
-                "cart_items": cart_items,
-                "subtotal": subtotal,
-                "total_price": int(total_price) + 60000,
-                "limit_products": list(product_limits.values()),
-            }
-
-            return render(request, "shop/checkout.html", context)
-
-        else:
-            messages.add_message(
-                request,
-                messages.WARNING,
-                message="لطفا ابتدا وارد حساب کاربری خود بشوید",
-            )
-            return redirect("shop_index_url")
-
+        messages.add_message(request, messages.WARNING, "لطفا ابتدا وارد حساب کاربری خود شوید")
+        return redirect("signin_url")
 
 def signin(request: HttpRequest):
     if request.method == "POST":
@@ -757,12 +779,114 @@ def signup(request: HttpRequest):
 
 
 def dashboard(request: HttpRequest):
-    context = {
-        "top_banner": TopBanner.objects.filter(active=True).last(),
-        "categories": Category.objects.all(),
-        "sub_categories": {
-            category: SubCategory.objects.filter(category=category)
-            for category in Category.objects.all()
-        },
-    }   
-    return render(request, "shop/my-account.html", context)
+    if request.user.is_authenticated:
+        if request.method == "POST":
+            user = request.user
+            first_name = request.POST.get("first_name", "").strip()
+            last_name = request.POST.get("last_name", "").strip()
+            phone = request.POST.get("phone", "").strip()
+            email = request.POST.get("email", "").strip()
+            # Get phone and address from UserMore if exists
+            try:
+                user_more = UserMore.objects.get(customer=user)
+            except UserMore.DoesNotExist:
+                user_more = None
+            address = request.POST.get("address", "").strip()
+            password = request.POST.get("password", "")
+            password_confirm = request.POST.get("password_confirm", "")
+
+            if not first_name or not last_name or not email:
+                messages.add_message(request, messages.WARNING, "نام، نام خانوادگی و ایمیل الزامی است.")
+                return redirect("dashboard_url")
+
+            try:
+                validate_email(email)
+            except ValidationError:
+                messages.warning(request, "ایمیل معتبر نیست.")
+                return redirect("dashboard_url")
+
+            if email != user.email and User.objects.filter(email=email).exclude(pk=user.pk).exists():
+                messages.add_message(request, messages.WARNING, "این ایمیل قبلاً ثبت شده است.")
+                return redirect("dashboard_url")
+
+            # Update user fields
+            user.first_name = first_name
+            user.last_name = last_name
+            user.email = email
+            # Update user fields
+            user.first_name = first_name
+            user.last_name = last_name
+            user.email = email
+
+            # Save phone and address to UserMore model
+            if user_more:
+                user_more.phone_number = phone
+                user_more.addres = address
+                user_more.save()
+            else:
+                UserMore.objects.create(customer=user, phone_number=phone, addres=address)
+
+            # Password change (optional)
+            print(password)
+            print(password_confirm)
+
+
+            if password or password_confirm:
+                if len(password) < 6 or password != password_confirm:
+                    messages.warning(request, "کلمه عبور باید حداقل ۶ کاراکتر باشد و با تکرار آن یکسان باشد.")
+                    return redirect("dashboard_url")
+                
+                user.set_password(password)
+                messages.success(request, "کلمه عبور با موفقیت تغییر کرد. لطفاً دوباره وارد شوید.")
+                user.save()
+
+                return redirect("signin_url")
+
+            user.save()
+            messages.success(request, "پروفایل با موفقیت به‌روزرسانی شد.")
+            return redirect("dashboard_url")
+
+
+        else:
+            context = {
+                "top_banner": TopBanner.objects.filter(active=True).last(),
+                "categories": Category.objects.all(),
+                "sub_categories": {
+                    category: SubCategory.objects.filter(category=category)
+                    for category in Category.objects.all()
+                },
+            }   
+            # اطلاعات سفارش‌های کاربر
+            user_orders = []
+            if request.user.is_authenticated:
+                user_orders = (
+                    Order.objects.filter(customer=request.user)
+                )
+
+            # اطلاعات پروفایل کاربر
+            user_profile = None
+            if request.user.is_authenticated:
+                user_profile = request.user
+
+            # تعداد سفارش‌ها
+            total_orders = user_orders.count() if user_orders else 0
+            pending_orders = user_orders.filter(status="در انتظار").count() if user_orders else 0
+
+            context.update({
+                "user_orders": user_orders,
+                "user_profile": user_profile,
+                "user_more": UserMore.objects.get_or_create(customer=user_profile)[0],
+                "total_orders": total_orders,
+                "pending_orders": pending_orders,
+            })
+
+            return render(request, "shop/my-account.html", context)
+
+    else:
+        return redirect("shop_index_url")
+    
+
+def logout(request):
+    auth_logout(request)
+    messages.success(request, "با موفقیت خارج شدید.")
+    return redirect("shop_index_url")

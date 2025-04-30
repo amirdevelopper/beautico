@@ -19,19 +19,19 @@
               <div class="col-lg-6">
                 <div class="form-inner">
                   <label>نام</label>
-                  <input type="text" name="fname" placeholder="نام شما" required>
+                  <input type="text" name="fname" placeholder="نام شما" required value="{{user_profile.first_name}}">
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-inner">
                   <label>نام خانوادگی</label>
-                  <input type="text" name="lname" placeholder="نام خانوادگی شما" required>
+                  <input type="text" name="lname" placeholder="نام خانوادگی شما" required value="{{user_profile.last_name}}">
                 </div>
               </div>
               <div class="col-12">
                 <div class="form-inner">
-                  <label>آدرس خیابان</label>
-                  <input type="text" name="address" placeholder="نام خانه و خیابان">
+                  <label>آدرس خانه و خیابان</label>
+                  <input type="text" name="address" placeholder="نام خانه و خیابان" value="{{user_more.addres}}">
                 </div>
               </div>
               <div class="col-12">
@@ -49,13 +49,13 @@
               <div class="col-12">
                 <div class="form-inner">
                   <label>شماره تلفن</label>
-                  <input type="text" name="phone" placeholder="شماره تلفن شما">
+                  <input type="text" name="phone" placeholder="شماره تلفن شما" value="{{user_more.phone_number}}">
                 </div>
               </div>
               <div class="col-12">
                 <div class="form-inner">
                   <label>ایمیل</label>
-                  <input type="email" name="email" placeholder="آدرس ایمیل شما">
+                  <input type="email" name="email" placeholder="آدرس ایمیل شما" value="{{user_profile.email}}">
                 </div>
               </div>
               <div class="col-12">

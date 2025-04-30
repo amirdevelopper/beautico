@@ -4,6 +4,7 @@ from .models import *
 
 
 admin.site.register(VerifyCode)
+admin.site.register(UserMore)
 
 @admin.register(BannerProduc)
 class BannerProducAdmin(admin.ModelAdmin):

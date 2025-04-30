@@ -74,6 +74,15 @@ class BannerProduc(models.Model):
     def __str__(self):
         return self.product.name
 
+class UserMore(models.Model):
+    customer = models.ForeignKey(User, related_name="usermore", on_delete=models.CASCADE)
+
+    phone_number = models.CharField(max_length=11, null=True, blank=True)
+    addres = models.TextField(max_length=350, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.customer} --> {self.phone_number}"
+
 
 class Order(models.Model):
     STATUS_CHOICES = [
