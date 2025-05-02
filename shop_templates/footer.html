@@ -11,11 +11,11 @@
                 <h5>پشتیبانی</h5>
               </div>
               <ul class="widget-list">
-                <li><a href="contact.html">کمک و تماس با ما</a></li>
-                <li><a href="#">بازگشت و استرداد</a></li>
-                <li><a href="shop-list.html">فروشگاه‌های آنلاین</a></li>
-                <li><a href="#">سیاست حریم خصوصی</a></li>
-                <li><a href="my-account.html">پروفایل</a></li>
+                <li><a href="tel:09190063634">کمک و تماس با ما</a></li>
+                <li><a href="">بازگشت و استرداد</a></li>
+                <li><a href="">فروشگاه‌های آنلاین</a></li>
+                <li><a href="">سیاست حریم خصوصی</a></li>
+                <li><a href="{% url "dashboard_url" %}">پروفایل</a></li>
               </ul>
             </div>
           </div>
@@ -26,11 +26,10 @@
                 <h5>شرکت</h5>
               </div>
               <ul class="widget-list">
-                <li><a href="about-us.html">آنچه ما انجام می‌دهیم</a></li>
-                <li><a href="gift-card.html">پیشنهادات هدیه</a></li>
-                <li><a href="blog-grid.html">آخرین پست‌ها</a></li>
-                <li><a href="faq.html">پرسش‌های متداول</a></li>
-                <li><a href="our-brand.html">برند ما</a></li>
+                <li><a href="">آنچه ما انجام می‌دهیم</a></li>
+                <li><a href="">پیشنهادات هدیه</a></li>
+                <li><a href="">آخرین پست‌ها</a></li>
+                <li><a href="{% url "faq_url" %}">پرسش‌های متداول</a></li>
               </ul>
             </div>
           </div>
@@ -41,11 +40,9 @@
                 <h5>دسته‌بندی</h5>
               </div>
               <ul class="widget-list">
-                <li><a href="shop-list.html">حمام و بدن</a></li>
-                <li><a href="shop-list.html">مراقبت از پوست</a></li>
-                <li><a href="shop-list.html">مراقبت از مو</a></li>
-                <li><a href="shop-list.html">کودکان و نوزادان</a></li>
-                <li><a href="shop-list.html">عطر</a></li>
+                {% for category in categories %}
+                  <li><a href="">{{category.name}}</a></li>              
+                {% endfor %}
               </ul>
             </div>
           </div>

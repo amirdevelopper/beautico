@@ -14,6 +14,20 @@ import time
 from django.contrib.auth.models import User
 from django.contrib.auth import logout as auth_logout
 import requests
+from django.conf import settings
+import requests
+import random
+
+sandbox = False
+
+if settings.SANDBOX:
+    sandbox = "sandbox"
+else:
+    sandbox = "zarinpal"
+
+ZARINPAL_REQUEST_URL = f"https://{sandbox}.zarinpal.com/pg/v4/payment/request.json"
+ZARINPAL_STARTPAY_URL = f"https://{sandbox}.zarinpal.com/pg/StartPay/"
+ZARINPAL_VERIFY_URL = f"https://{sandbox}.zarinpal.com/pg/v4/payment/verify.json"
 
 
 # Create your views here.
@@ -29,21 +43,16 @@ def shop_index(request):
         "special_products": [
             {
                 "product": product,
-                "review": Review.objects.filter(
-                    product=product
-                ),  # Assuming 'reviews' is a related name for reviews
             }
             for product in Product.objects.filter(is_special=True, publish=True)[:10]
         ],
         "new_products": [
             {
                 "product": product,
-                "review": Review.objects.filter(
-                    product=product
-                ),  # Assuming 'reviews' is a related name for reviews
             }
             for product in Product.objects.all().order_by("-created_at")[:10]
         ],
+        "blogs": Blog.objects.filter(publish=True)[:4],
     }
 
     return render(request, "shop/index.html", context=context)
@@ -64,12 +73,6 @@ def show_product(request: HttpRequest, id):
                     )
                     return redirect(request.path)
 
-                Review.objects.create(
-                    product=Product.objects.get(id=id),
-                    user=request.user,
-                    comment=request.POST["comment"],
-                )
-
             else:
                 messages.add_message(
                     request,
@@ -81,7 +84,6 @@ def show_product(request: HttpRequest, id):
             return HttpResponse("hi")
 
         product = Product.objects.get(id=id)
-        reviews = Review.objects.filter(product=product)
         limit = ProductLimit.objects.filter(product=product)
 
         context = {
@@ -92,7 +94,6 @@ def show_product(request: HttpRequest, id):
                 for category in Category.objects.all()
             },
             "product": product,
-            "reviews": reviews,
             "limit": limit,
             "attributes": ProductAttribute.objects.filter(product=product),
         }
@@ -254,8 +255,6 @@ def show_cart(request: HttpRequest):
                 )
                 return redirect("show_cart_url")
 
-            print(product_id)
-
             cart_item = CartItem.objects.filter(
                 cart=cart, product_id=product_id_int
             ).first()
@@ -394,15 +393,19 @@ def special(request):
         return render(request, "shop/product_category.html", context)
 
 
-def check_out_order(request:HttpRequest):
+def check_out_order(request: HttpRequest):
     if request.user.is_authenticated:
         if request.method == "POST":
             if request.user.is_authenticated:
                 cart, created = Cart.objects.get_or_create(customer=request.user)
-                cart_items = CartItem.objects.filter(cart=cart).select_related("product")
+                cart_items = CartItem.objects.filter(cart=cart).select_related(
+                    "product"
+                )
 
                 if not cart_items.exists():
-                    messages.add_message(request, messages.WARNING, "سبد خرید شما خالی است")
+                    messages.add_message(
+                        request, messages.WARNING, "سبد خرید شما خالی است"
+                    )
                     return redirect("show_cart_url")
 
                 subtotal = 0
@@ -446,7 +449,9 @@ def check_out_order(request:HttpRequest):
                     return redirect("check_out_order_url")
 
                 if len(postcode) < 5 or not postcode.isdigit():
-                    messages.add_message(request, messages.WARNING, "کد پستی معتبر نیست.")
+                    messages.add_message(
+                        request, messages.WARNING, "کد پستی معتبر نیست."
+                    )
                     return redirect("check_out_order_url")
 
                 try:
@@ -457,45 +462,40 @@ def check_out_order(request:HttpRequest):
 
                 full_address = f"{fname} {lname}, {address}, {city}, {postcode}, {phone}, {email}\n{message or ''}"
 
-                # زرین‌پال SANDBOX
-                ZARINPAL_MERCHANT_ID = "00000000-0000-0000-0000-000000000000"  # مقدار تست ۳۶ کاراکتری برای sandbox
-                ZARINPAL_REQUEST_URL = "https://sandbox.zarinpal.com/pg/v4/payment/request.json"
-                ZARINPAL_STARTPAY_URL = "https://sandbox.zarinpal.com/pg/StartPay/"
-                ZARINPAL_CALLBACK_URL = request.build_absolute_uri("/zarinpal/verify/")
-
-                amount = (int(subtotal) + 60000) * 10  # مبلغ به ریال (تومان × 10)
-                description = "پرداخت سفارش فروشگاه بیوتیکو"
-                metadata = {"mobile": phone, "email": email}
+                amount = 0
+                for item_cart in CartItem.objects.filter(
+                    cart=Cart.objects.get_or_create(customer=request.user)[0]
+                ):
+                    if item_cart.product.special_price:
+                        amount += item_cart.product.special_price * item_cart.stock
+                    else:
+                        amount += item_cart.product.price * item_cart.stock
 
                 data = {
-                    "merchant_id": ZARINPAL_MERCHANT_ID,
-                    "amount": amount,
-                    "callback_url": ZARINPAL_CALLBACK_URL,
-                    "description": description,
-                    "metadata": metadata,
+                    "merchant_id": settings.MERCHANT_ID,
+                    "amount": int(amount) + 60000,
+                    "description": "بیوتیکو",
+                    "callback_url": "http://127.0.0.1:8000/shop/verify",
+                    "currency": "IRT",
                 }
 
-                try:
-                    response = requests.post(
-                        ZARINPAL_REQUEST_URL,
-                        json=data,
-                        headers={"accept": "application/json", "content-type": "application/json"},
-                        timeout=10,
-                    )
-                    result = response.json()
-                    if result.get("data") and int(result["data"].get("code", 0)) == 100:
-                        authority = result["data"]["authority"]
-                        return redirect(f"{ZARINPAL_STARTPAY_URL}{authority}")
-                    else:
-                        messages.warning(request, "خطا در اتصال به درگاه پرداخت: " + str(result.get("errors", "")))
-                        return redirect("checkout_url")
-                except Exception as e:
-                    messages.warning(request, "خطا در ارتباط با درگاه پرداخت.")
-                    return redirect("checkout_url")
+                result_url = zainpall_payment(request, data)
+                if result_url[0] == True:
+                    code = ""
+                    for i in range(10):
+                        code += str(random.randint(1, 9))
 
+                    Authority.objects.create(
+                        tracking_code=code,
+                        customer=request.user,
+                        authority=result_url[2],
+                        addres=full_address,
+                    ).save()
 
-                # messages.success(request, "سفارش شما با موفقیت ثبت شد.")
-                # return redirect("shop_index_url")
+                    return redirect(result_url[1])
+
+                else:
+                    return HttpResponse("مشکلی برای درگاه پرداخت زرین پال بوجود آمده")
 
             else:
                 messages.warning(request, "لطفا ابتدا وارد حساب کاربری خود بشوید")
@@ -504,7 +504,9 @@ def check_out_order(request:HttpRequest):
         else:
             if request.user.is_authenticated:
                 cart, created = Cart.objects.get_or_create(customer=request.user)
-                cart_items = CartItem.objects.filter(cart=cart).select_related("product")
+                cart_items = CartItem.objects.filter(cart=cart).select_related(
+                    "product"
+                )
 
                 total_price = 0
                 subtotal = 0
@@ -547,7 +549,9 @@ def check_out_order(request:HttpRequest):
                     "total_price": int(total_price) + 60000,
                     "limit_products": list(product_limits.values()),
                     "user_profile": user_profile,
-                    "user_more": UserMore.objects.get_or_create(customer=user_profile)[0],
+                    "user_more": UserMore.objects.get_or_create(customer=user_profile)[
+                        0
+                    ],
                 }
 
                 return render(request, "shop/checkout.html", context)
@@ -560,8 +564,11 @@ def check_out_order(request:HttpRequest):
                 )
                 return redirect("shop_index_url")
     else:
-        messages.add_message(request, messages.WARNING, "لطفا ابتدا وارد حساب کاربری خود شوید")
+        messages.add_message(
+            request, messages.WARNING, "لطفا ابتدا وارد حساب کاربری خود شوید"
+        )
         return redirect("signin_url")
+
 
 def signin(request: HttpRequest):
     if request.method == "POST":
@@ -796,7 +803,9 @@ def dashboard(request: HttpRequest):
             password_confirm = request.POST.get("password_confirm", "")
 
             if not first_name or not last_name or not email:
-                messages.add_message(request, messages.WARNING, "نام، نام خانوادگی و ایمیل الزامی است.")
+                messages.add_message(
+                    request, messages.WARNING, "نام، نام خانوادگی و ایمیل الزامی است."
+                )
                 return redirect("dashboard_url")
 
             try:
@@ -805,8 +814,13 @@ def dashboard(request: HttpRequest):
                 messages.warning(request, "ایمیل معتبر نیست.")
                 return redirect("dashboard_url")
 
-            if email != user.email and User.objects.filter(email=email).exclude(pk=user.pk).exists():
-                messages.add_message(request, messages.WARNING, "این ایمیل قبلاً ثبت شده است.")
+            if (
+                email != user.email
+                and User.objects.filter(email=email).exclude(pk=user.pk).exists()
+            ):
+                messages.add_message(
+                    request, messages.WARNING, "این ایمیل قبلاً ثبت شده است."
+                )
                 return redirect("dashboard_url")
 
             # Update user fields
@@ -824,20 +838,22 @@ def dashboard(request: HttpRequest):
                 user_more.addres = address
                 user_more.save()
             else:
-                UserMore.objects.create(customer=user, phone_number=phone, addres=address)
-
-            # Password change (optional)
-            print(password)
-            print(password_confirm)
-
+                UserMore.objects.create(
+                    customer=user, phone_number=phone, addres=address
+                )
 
             if password or password_confirm:
                 if len(password) < 6 or password != password_confirm:
-                    messages.warning(request, "کلمه عبور باید حداقل ۶ کاراکتر باشد و با تکرار آن یکسان باشد.")
+                    messages.warning(
+                        request,
+                        "کلمه عبور باید حداقل ۶ کاراکتر باشد و با تکرار آن یکسان باشد.",
+                    )
                     return redirect("dashboard_url")
-                
+
                 user.set_password(password)
-                messages.success(request, "کلمه عبور با موفقیت تغییر کرد. لطفاً دوباره وارد شوید.")
+                messages.success(
+                    request, "کلمه عبور با موفقیت تغییر کرد. لطفاً دوباره وارد شوید."
+                )
                 user.save()
 
                 return redirect("signin_url")
@@ -845,7 +861,6 @@ def dashboard(request: HttpRequest):
             user.save()
             messages.success(request, "پروفایل با موفقیت به‌روزرسانی شد.")
             return redirect("dashboard_url")
-
 
         else:
             context = {
@@ -855,13 +870,10 @@ def dashboard(request: HttpRequest):
                     category: SubCategory.objects.filter(category=category)
                     for category in Category.objects.all()
                 },
-            }   
+            }
             # اطلاعات سفارش‌های کاربر
-            user_orders = []
             if request.user.is_authenticated:
-                user_orders = (
-                    Order.objects.filter(customer=request.user)
-                )
+                user_orders = Order.objects.filter(customer=request.user)
 
             # اطلاعات پروفایل کاربر
             user_profile = None
@@ -869,24 +881,177 @@ def dashboard(request: HttpRequest):
                 user_profile = request.user
 
             # تعداد سفارش‌ها
-            total_orders = user_orders.count() if user_orders else 0
-            pending_orders = user_orders.filter(status="در انتظار").count() if user_orders else 0
+            total_orders = len(user_orders) if user_orders else 0
+            pending_orders = (
+                user_orders.filter(status="در انتظار").count() if user_orders else 0
+            )
 
-            context.update({
-                "user_orders": user_orders,
-                "user_profile": user_profile,
-                "user_more": UserMore.objects.get_or_create(customer=user_profile)[0],
-                "total_orders": total_orders,
-                "pending_orders": pending_orders,
-            })
+            context.update(
+                {
+                    "user_orders": user_orders,
+                    "user_profile": user_profile,
+                    "user_more": UserMore.objects.get_or_create(customer=user_profile)[
+                        0
+                    ],
+                    "total_orders": total_orders,
+                    "pending_orders": pending_orders,
+                }
+            )
 
             return render(request, "shop/my-account.html", context)
 
     else:
         return redirect("shop_index_url")
-    
+
 
 def logout(request):
     auth_logout(request)
     messages.success(request, "با موفقیت خارج شدید.")
     return redirect("shop_index_url")
+
+
+def zainpall_payment(request, data):
+    try:
+        response = requests.post(ZARINPAL_REQUEST_URL, json=data).json()
+
+        if response["data"]["code"] == 100:
+            return (
+                True,
+                f"{ZARINPAL_STARTPAY_URL}{response["data"]["authority"]}",
+                response["data"]["authority"],
+            )
+
+        else:
+            return False, f"{ZARINPAL_STARTPAY_URL}{response["data"]["authority"]}"
+    except:
+        messages.add_message(request, messages.WARNING, message="مشکلی پیش آمده")
+        return redirect("shop_index_url")
+
+
+def verify_payment(request):
+    try:
+        auth_obj = Authority.objects.get(authority=request.GET["Authority"])
+
+        amount = 0
+        for item_cart in CartItem.objects.filter(
+            cart=Cart.objects.get_or_create(customer=request.user)[0]
+        ):
+            if item_cart.product.special_price:
+                amount += item_cart.product.special_price * item_cart.stock
+            else:
+                amount += item_cart.product.price * item_cart.stock
+
+        data = {
+            "merchant_id": settings.MERCHANT_ID,
+            "amount": int(amount) + 60000,
+            "authority": auth_obj.authority,
+        }
+
+        response = requests.post(ZARINPAL_VERIFY_URL, json=data).json()
+
+        if response["data"]["code"] == 100:
+            cart, created = Cart.objects.get_or_create(customer=request.user)
+            cart_items = CartItem.objects.filter(cart=cart)
+
+            order = Order.objects.create(
+                customer=request.user,
+                addres=auth_obj.addres,
+                tracking_code=auth_obj.tracking_code,
+            )
+
+            for cart_item in cart_items:
+                if cart_item.product.special_price:
+                    price = cart_item.product.special_price
+
+                else:
+                    price = cart_item.product.price
+
+                order.addres = auth_obj.addres
+
+                OrderItem.objects.create(
+                    order=order,
+                    product=cart_item.product,
+                    stock=cart_item.stock,
+                    price=price,
+                ).save()
+
+                order.save()
+
+            messages.success(request, "سفارش شما با موفقیت ثبت شد.")
+            return redirect("shop_index_url")
+
+        else:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                "مشکلی در انجام عملیات پیش آمده است (در صورت کسر وجه از حساب شما مبلغ مذکور طی 72 ساعت آینده به حساب شما برمیگردد)",
+            )
+            return redirect("shop_index_url")
+
+    except:
+        messages.add_message(request, messages.WARNING, message="مشکلی پیش آمده")
+        return redirect("shop_index_url")
+
+
+def check_order(request):
+    if request.method == "POST":
+        orders = Order.objects.filter(tracking_code=request.POST["code"])
+        msg = f""
+
+        for order in orders:
+            msg += f"وضعیت سفارش: {order.status} | "
+
+            msg += f"برای : {order.customer.username} | "
+
+            msg += f"به :{order.addres} | "
+
+            msg += f"مابقی اطلاعات سفارش در پنل کاربری قابل مشاهده میباشند"
+
+        messages.add_message(request, messages.SUCCESS, message=msg)
+        return redirect(request.path)
+    else:
+        return redirect("shop_index_url")
+
+
+def Blogs(request):
+    Blogs = Blog.objects.filter(publish=True)
+    paginated_blogs = Paginator(Blogs, 6).get_page(request.GET.get("page"))
+
+    context = {
+        "top_banner": TopBanner.objects.filter(active=True).last(),
+        "categories": Category.objects.all(),
+        "sub_categories": {
+            category: SubCategory.objects.filter(category=category)
+            for category in Category.objects.all()
+        },
+        "blogs": paginated_blogs,
+    }
+
+    return render(request, "shop/blog-grid.html", context)
+
+
+def show_blog(request, id):
+    blog = Blog.objects.get(id=id, publish=True)
+
+    context = {
+        "top_banner": TopBanner.objects.filter(active=True).last(),
+        "categories": Category.objects.all(),
+        "sub_categories": {
+            category: SubCategory.objects.filter(category=category)
+            for category in Category.objects.all()
+        },
+        "blog": blog,
+    }
+    return render(request, "shop/blog-details.html", context)
+
+
+def faq(request):
+    context = {
+        "top_banner": TopBanner.objects.filter(active=True).last(),
+        "categories": Category.objects.all(),
+        "sub_categories": {
+            category: SubCategory.objects.filter(category=category)
+            for category in Category.objects.all()
+        },
+    }
+    return render(request, "shop/faq.html", context)

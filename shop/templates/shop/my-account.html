@@ -150,35 +150,6 @@
             </div>
           </div>
 
-          <!-- پیگیری سفارش -->
-          <div class="tab-pane fade" id="v-pills-order" role="tabpanel" aria-labelledby="v-pills-order-tab">
-            <div class="order-traking-area">
-              <p>برای پیگیری سفارش خود لطفاً شماره سفارش را در کادر زیر وارد کنید و بر روی دکمه "پیگیری" کلیک کنید. این
-                شماره در رسید و در ایمیل تأییدیه‌ای که باید دریافت کرده باشید، ذکر شده است.</p>
-              <form>
-                <div class="row justify-content-center">
-                  <div class="col-md-8 mb-25">
-                    <div class="form-inner">
-                      <label>شماره سفارش</label>
-                      <input type="text" placeholder="شماره سفارش خود را وارد کنید">
-                    </div>
-                  </div>
-                  <div class="col-md-8">
-                    <div class="form-inner">
-                      <label>ایمیل صورتحساب</label>
-                      <input type="text" placeholder="ایمیل خود را وارد کنید">
-                    </div>
-                  </div>
-                  <div class="col-md-5 d-flex justify-content-center">
-                    <div class="button-group">
-                      <button type="submit" class="primary-btn3 black-bg hover-btn5 hover-white">پیگیری</button>
-                    </div>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-
           <div class="tab-pane fade" id="v-pills-purchase" role="tabpanel" aria-labelledby="v-pills-purchase-tab">
             <div class="table-title-area">
               <h3>سفارش‌های من</h3>
@@ -188,6 +159,7 @@
                 <thead>
                   <tr>
                     <th>تصویر</th>
+                    <th>کد پیگیری</th>
                     <th>شماره سفارش</th>
                     <th>جزئیات محصول</th>
                     <th>قیمت</th>
@@ -198,13 +170,17 @@
                     {% for order in user_orders %}
                     {% for item in order.items.all %}
                       <tr>
-                      <td data-label="Image">
-                        {% if item.product.image1 %}
-                        <img alt="image" src="{{ item.product.image1.url }}" class="img-fluid">
-                        {% else %}
-                        <img alt="image" src="{% static 'img/no-image.png' %}" class="img-fluid">
-                        {% endif %}
-                      </td>
+                        <td data-label="Image">
+                          <a href="{% url "show_product_url" item.product.id %}">
+                              {% if item.product.image1 %}
+                              <img alt="image" src="{{ item.product.image1.url }}" class="img-fluid">
+                              {% else %}
+                              <img alt="image" src="{% static 'img/no-image.png' %}" class="img-fluid">
+                              {% endif %}
+                          </a>
+                        </td>
+                      
+                      <td data-label="Order Tracking Code">{{ order.tracking_code }}</td>
                       <td data-label="Order ID">#{{ order.id }}</td>
                       <td data-label="Product Details">{{ item.product.name }}</td>
                       <td data-label="price">{{ item.price|intcomma }} {{ item.product.currency|default:"تومان" }}</td>

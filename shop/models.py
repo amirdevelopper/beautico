@@ -22,6 +22,7 @@ class SubCategory(models.Model):
     def __str__(self):
         return f"{self.category.name} - {self.name}"
 
+
 class VerifyCode(models.Model):
     code = models.CharField(max_length=10)
     name = models.CharField(max_length=50)
@@ -31,6 +32,7 @@ class VerifyCode(models.Model):
 
     def __str__(self):
         return f"{self.email} --> {self.code}"
+
 
 class Product(models.Model):
     subcategory = models.ForeignKey(
@@ -63,19 +65,27 @@ class Product(models.Model):
             discount = ((self.price - self.special_price) / self.price) * 100
             return round(discount)
         return 0
-    
+
+
 class BannerProduc(models.Model):
-    picture_product = models.ImageField(upload_to="banner_product/", blank=False, null=False)
-    title=models.CharField(max_length=30, null=True)
+    picture_product = models.ImageField(
+        upload_to="banner_product/", blank=False, null=False
+    )
+    title = models.CharField(max_length=30, null=True)
     description = models.TextField(max_length=100, null=True)
 
-    product = models.ForeignKey(Product, related_name="banner_product", on_delete=models.CASCADE)
+    product = models.ForeignKey(
+        Product, related_name="banner_product", on_delete=models.CASCADE
+    )
 
     def __str__(self):
         return self.product.name
 
+
 class UserMore(models.Model):
-    customer = models.ForeignKey(User, related_name="usermore", on_delete=models.CASCADE)
+    customer = models.ForeignKey(
+        User, related_name="usermore", on_delete=models.CASCADE
+    )
 
     phone_number = models.CharField(max_length=11, null=True, blank=True)
     addres = models.TextField(max_length=350, null=True, blank=True)
@@ -92,7 +102,7 @@ class Order(models.Model):
         ("تحویل داده شده", "تحویل داده شده"),
         ("لغو شده", "لغو شده"),
     ]
-
+    tracking_code = models.CharField(max_length=10, null=True, blank=True)
     customer = models.ForeignKey(User, related_name="orders", on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -145,19 +155,6 @@ class CartItem(models.Model):
         return f"{self.product.name} x {self.stock}"
 
 
-class Review(models.Model):
-    product = models.ForeignKey(
-        Product, related_name="reviews", on_delete=models.CASCADE
-    )
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    comment = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    approved = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f"{self.user.username} - {self.product.name} - {self.rating}"
-
-
 class TopBanner(models.Model):
     link = models.URLField(blank=True, null=True)
     title = models.CharField(max_length=255, blank=True)
@@ -186,3 +183,36 @@ class ProductLimit(models.Model):
 
     def __str__(self):
         return f"Limit for {self.product.name}: {self.max_purchase_limit}"
+
+
+class Authority(models.Model):
+    tracking_code = models.CharField(max_length=10, blank=True, null=True)
+    customer = models.ForeignKey(User, on_delete=models.CASCADE)
+    authority = models.CharField(max_length=100)
+    addres = models.TextField(max_length=500, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.customer} --> {self.authority}"
+
+
+class BlogTag(models.Model):
+    name = models.CharField(max_length=30)
+
+    def __str__(self):
+        return self.name
+
+
+class Blog(models.Model):
+    title = models.CharField(max_length=60)
+    description = models.TextField(max_length=800)
+
+    image = models.ImageField(upload_to="blog/")
+    date = models.DateField(auto_now_add=True)
+
+    author = models.CharField(max_length=60)
+    tags = models.ManyToManyField(BlogTag)
+
+    publish = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.title} --> {self.author}"

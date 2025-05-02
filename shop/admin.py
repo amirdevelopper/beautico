@@ -5,6 +5,7 @@ from .models import *
 
 admin.site.register(VerifyCode)
 admin.site.register(UserMore)
+admin.site.register(Authority)
 
 @admin.register(BannerProduc)
 class BannerProducAdmin(admin.ModelAdmin):
@@ -70,13 +71,6 @@ class CartAdmin(admin.ModelAdmin):
     inlines = [CartItemInline]
 
 
-@admin.register(Review)
-class ReviewAdmin(admin.ModelAdmin):
-    list_display = ['product', 'user', 'approved', 'created_at']
-    list_filter = ['approved', 'created_at']
-    search_fields = ['user__username', 'product__name']
-
-
 
 @admin.register(TopBanner)
 class BannerAdmin(admin.ModelAdmin):
@@ -94,3 +88,6 @@ class ProductAttributeAdmin(admin.ModelAdmin):
 @admin.register(ProductLimit)
 class ProductLimitAdmin(admin.ModelAdmin):
     list_display = ['product', 'max_purchase_limit']
+
+admin.site.register(Blog)
+admin.site.register(BlogTag)

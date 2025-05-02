@@ -20,5 +20,16 @@ urlpatterns = [
     path("signup/", views.signup, name="signup_url"),
 
     path("dashboard/", views.dashboard, name="dashboard_url"),
-    path("logout", views.logout, name="logout_url")
+    path("logout", views.logout, name="logout_url"),
+
+    path("pay/", views.zainpall_payment, name="zarinpal_payment_url"),
+    path("verify/", views.verify_payment),
+
+    path("check_order/", views.check_order, name="check_order"),
+
+    path("blogs/", views.Blogs, name="blogs_url"),
+    path("blog/<int:id>", views.show_blog, name="show_blog_url"),
+
+
+    path("faq/", views.faq, name="faq_url")
 ]
