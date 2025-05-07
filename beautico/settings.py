@@ -41,7 +41,9 @@ INSTALLED_APPS = [
     "shop",
     "wish",
     "django.contrib.humanize",
-    "admin_dashboard"
+    "admin_dashboard",
+    "rest_framework",
+    "api_blog"
 ]
 
 MIDDLEWARE = [

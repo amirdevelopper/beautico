@@ -25,4 +25,5 @@ urlpatterns = [
     path("shop/", include("shop.urls")),
     path("shop/wish", include("wish.urls")),
     path("dashboard_admin", include("admin_dashboard.urls")),
+    path("api/", include("api_blog.urls"))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
