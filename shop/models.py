@@ -42,7 +42,6 @@ class Product(models.Model):
     description = models.TextField(blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=0)
     stock = models.IntegerField()
-    available = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     image1 = models.ImageField(upload_to="products/", blank=True, null=True)
     image2 = models.ImageField(upload_to="products/", blank=True, null=True)
@@ -50,8 +49,7 @@ class Product(models.Model):
     image4 = models.ImageField(upload_to="products/", blank=True, null=True)
     special_price = models.DecimalField(
         max_digits=10, decimal_places=0, blank=True, null=True
-    )
-    publish = models.BooleanField(default=True)
+    )   
 
     # ویژگی‌های جدید
     is_special = models.BooleanField(default=False)
@@ -211,8 +209,6 @@ class Blog(models.Model):
 
     author = models.CharField(max_length=60)
     tags = models.ManyToManyField(BlogTag)
-
-    publish = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.title} --> {self.author}"

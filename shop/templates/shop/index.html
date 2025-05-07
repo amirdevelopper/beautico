@@ -146,7 +146,7 @@
             <div class="category-card style-2" style="height: 200px; overflow: hidden; display: flex; flex-direction: column;">
             <div class="category-card-img" style="flex: 1; display: flex; justify-content: center; align-items: center; position: relative;">
                 <a href="{% url 'category_shop_url' category.slug "all" %}" style="display: block; width: 100%; height: 100%;">
-              <img src="{{category.picture.url}}" alt style="max-height: 100%; max-width: 100%; object-fit: contain; position: absolute; top: 0; left: 0; right: 0; bottom: 0;">
+              <img src="{{category.picture.url}}" style="width: 100%; height: 150px;">
               </a>
             </div>
             <div class="category-card-content" style="flex: 0 0 auto; display: flex; justify-content: center; align-items: center; position: relative; z-index: 1; background-color: white;">

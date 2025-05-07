@@ -19,7 +19,7 @@ def add_to_wishlist(request: HttpRequest, id):
 
     product_list = []
     for wish in wish_list:
-        product_list.append(Product.objects.get(publish=True, id=wish))
+        product_list.append(Product.objects.get(id=wish))
 
     messages.add_message(request, messages.SUCCESS, "محصول مورد نظر به علاقه مندی اضافه شد")
     return redirect("get_wishlist_url")
@@ -37,7 +37,7 @@ def remove_from_wishlist(request: HttpRequest, id):
 
     product_list = []
     for wish in wish_list:
-        product_list.append(Product.objects.get(publish=True, id=wish))
+        product_list.append(Product.objects.get(id=wish))
 
     messages.add_message(request, messages.SUCCESS, "محصول مورد نظر از علاقه مندی حذف شد")
     return redirect("get_wishlist_url")
@@ -49,7 +49,7 @@ def get_wishlist(request: HttpRequest):
 
     product_list = []
     for wish in wish_list:
-        product_list.append(Product.objects.get(publish=True, id=wish))
+        product_list.append(Product.objects.get(id=wish))
 
     return render(
         request,

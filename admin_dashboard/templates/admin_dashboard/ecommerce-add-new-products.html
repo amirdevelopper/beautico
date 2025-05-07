@@ -1,0 +1,199 @@
+{% extends "base_admin.html" %}
+
+{% block content %}
+
+<body class="bg-theme bg-theme7">
+	<!--wrapper-->
+	<div class="wrapper">
+		<!--sidebar wrapper -->
+		{% include "sidebar.html" %}
+		<!--end sidebar wrapper -->
+
+		<!--start page wrapper -->
+		<div class="page-wrapper">
+
+			<div class="page-content">
+				<div class="card">
+					<div class="card-body p-4">
+						<h5 class="card-title">{{title}}</h5>
+						<hr />
+						<div class="form-body mt-4">
+							<form method="post" class="row" enctype="multipart/form-data">
+								{% csrf_token %}
+								<div class="col-lg-8">
+									<div class="border border-3 p-4 rounded">
+										<div class="mb-3">
+											<label for="inputProductTitle" class="form-label">عنوان محصول</label>
+											<input type="text" class="form-control" id="inputProductTitle"
+												placeholder="عنوان محصول را وارد کنید" name="name" value="{{product.name}}">
+										</div>
+										<div class="mb-3">
+											<label for="inputProductDescription" class="form-label">توضیحات</label>
+											<textarea class="form-control" id="inputProductDescription" rows="3"
+												name="description" style="height: 300px;">{{product.description}}</textarea>
+										</div>
+										<div class="mb-3 mt-3">
+											<label for="inputProductDescription" class="form-label">تصویر محصول
+												1</label>
+											<input id="image-uploadify" type="file" name="image1" accept="image/*">
+										</div>
+										<div class="mb-3">
+											<label for="inputProductDescription" class="form-label">تصویر محصول
+												2</label>
+											<input id="image-uploadify" type="file" name="image2" accept="image/*">
+										</div>
+										<div class="mb-3">
+											<label for="inputProductDescription" class="form-label">تصویر محصول
+												3</label>
+											<input id="image-uploadify" type="file" name="image3" accept="image/*">
+										</div>
+										<div class="mb-3">
+											<label for="inputProductDescription" class="form-label">تصویر محصول
+												4</label>
+											<input id="image-uploadify" type="file" name="image4" accept="image/*">
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-4">
+									<div class="border border-3 p-4 rounded">
+										<div class="row g-3">
+											<div class="col-md-6" style="margin-top: 37px;">
+												<label for="inputPrice" class="form-label">قیمت</label>
+												<input type="number" class="form-control" id="inputPrice"
+													placeholder="$" name="price" value="{{product.price}}">
+											</div>
+											<div class="col-md-6">
+												<label for="inputCompareatprice" class="form-label">قیمت تخفیفی (اگر
+													تخفیف ندارد خالی بذارید)</label>
+												<input type="number" class="form-control" id="inputCompareatprice"
+													placeholder="$" name="special_price" value="{{product.special_price}}">
+											</div>
+											<div class="col-md-12">
+												<label for="inputCompareatprice" class="form-label">موجودی</label>
+												<input type="number" class="form-control" id="inputCompareatprice"
+													placeholder="$" name="stock" value="{{product.stock}}">
+											</div>
+
+											<h5 class="m-0 mt-3 mb-1">اضافه کردن ویژگی</h5>
+											<div class="row mb-3">
+												<div class="col-md-4">
+													<input type="text" id="attr-name" class="form-control" placeholder="کلید">
+												</div>
+												<div class="col-md-4">
+													<input type="text" id="attr-value" class="form-control" placeholder="مقدار">
+												</div>
+												<div class="col-md-4">
+													<button type="button" class="btn btn-success" onclick="addAttribute()">افزودن</button>
+												</div>
+											</div>
+										
+											<div id="attributes-list" class="mb-3 rounded-3" style="border: 1px solid black;"></div>
+
+											<div class="col-md-12">
+												<label for="limit" class="form-label">حداکثر تعداد خرید</label>
+												<input type="number" class="form-control" id="limit"
+													placeholder="حداکثر تعداد محصول در هر سفارش" name="limit" value="{{limit}}">
+											</div>
+
+											<input type="hidden" name="product_id" value="{{ product.id }}">
+											<input type="hidden" id="attributes-data" name="attributes_json">
+
+											<div class="col-12">
+												<label for="inputProductType" class="form-label">دسته بندی</label>
+												<select class="form-select" id="inputProductType" name="category">
+													<option></option>
+													{% for category in categories %}
+													<option value={{category.id}}>{{category.name}}</option>
+													{% endfor %}
+												</select>
+											</div>
+											<div class="col-12">
+												<label for="inputSub" class="form-label">ساب دسته بندی</label>
+												<select class="form-select" id="inputSub" name="subcategory">
+													<option></option>
+												</select>
+											</div>
+
+
+
+											<div class="mb-3 mt-5 form-check col-12">
+												{% if product.is_special %}
+													<input type="checkbox" class="form-check-input" id="exampleCheck1"
+														name="is_special" checked>
+													<label class="form-check-label" for="exampleCheck1">در محصولات شگفت
+														انگیز قرار بگیرد</label>
+
+												{% else %}
+												<input type="checkbox" class="form-check-input" id="exampleCheck1"
+													name="is_special" >
+												<label class="form-check-label" for="exampleCheck1">در محصولات شگفت
+													انگیز قرار بگیرد</label>
+												{% endif %}
+											</div>
+											
+											<div class="col-12">
+												<div class="d-grid">
+													<button type="submit" class="btn btn-light" onclick="prepareSubmit()">ذخیره</button>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+							</form>
+
+						</div>
+					</div>
+				</div>
+
+			</div>
+</body>
+
+<script>
+	let attributes = [];
+
+	function addAttribute() {
+		const name = document.getElementById('attr-name').value.trim();
+		const value = document.getElementById('attr-value').value.trim();
+
+		if (!name || !value) return;
+
+		attributes.push({ name, value });
+
+		document.getElementById('attributes-list').innerHTML += `
+			<div class="attribute-item">${name}: ${value}</div>
+		`;
+
+		document.getElementById('attr-name').value = '';
+		document.getElementById('attr-value').value = '';
+	}
+
+	function prepareSubmit() {
+		document.getElementById('attributes-data').value = JSON.stringify(attributes);
+	}
+</script>
+
+<script>
+	const selectInputCategory = document.getElementById("inputProductType");
+	const selectInputSubcategory = document.getElementById("inputSub");
+
+	selectInputCategory.addEventListener("change", function () {
+		const categoryId = this.value;
+
+		fetch(`{% url "get_subcategories" %}?category_id=${categoryId}`)
+			.then(response => response.json())
+			.then(data => {
+				selectInputSubcategory.innerHTML = "<option></option>"; // پاک کردن گزینه‌های قبلی
+				data.forEach(sub => {
+					const option = document.createElement("option");
+					option.value = sub.id;
+					option.textContent = sub.name;
+					selectInputSubcategory.appendChild(option);
+				});
+			})
+			.catch(error => console.error("Error loading subcategories:", error));
+	});
+</script>
+
+
+{% endblock content %}

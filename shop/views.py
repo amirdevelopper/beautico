@@ -44,7 +44,7 @@ def shop_index(request):
             {
                 "product": product,
             }
-            for product in Product.objects.filter(is_special=True, publish=True)[:10]
+            for product in Product.objects.filter(is_special=True)[:10]
         ],
         "new_products": [
             {
@@ -52,7 +52,7 @@ def shop_index(request):
             }
             for product in Product.objects.all().order_by("-created_at")[:10]
         ],
-        "blogs": Blog.objects.filter(publish=True)[:4],
+        "blogs": Blog.objects.all()[:4],
     }
 
     return render(request, "shop/index.html", context=context)
@@ -121,14 +121,14 @@ def show_category(request, category, subcategory):
         if subcategory == "all":
             category_obj = Category.objects.get(slug=category)
             products = Product.objects.filter(
-                subcategory__category=category_obj, publish=True
+                subcategory__category=category_obj
             )
         else:
             category_obj = Category.objects.get(slug=category)
             subcategory_obj = SubCategory.objects.get(
                 slug=subcategory, category=category_obj
             )
-            products = Product.objects.filter(subcategory=subcategory_obj, publish=True)
+            products = Product.objects.filter(subcategory=subcategory_obj)
 
         context = {
             "top_banner": TopBanner.objects.filter(active=True).last(),
@@ -378,7 +378,7 @@ def special(request):
         pass
 
     else:
-        products_qs = Product.objects.filter(is_special=True, publish=True)
+        products_qs = Product.objects.filter(is_special=True)
         products = Paginator(products_qs, 10).get_page(request.GET.get("page"))
 
         context = {
@@ -1014,7 +1014,7 @@ def check_order(request):
 
 
 def Blogs(request):
-    Blogs = Blog.objects.filter(publish=True)
+    Blogs = Blog.objects.filter()
     paginated_blogs = Paginator(Blogs, 6).get_page(request.GET.get("page"))
 
     context = {
@@ -1031,7 +1031,7 @@ def Blogs(request):
 
 
 def show_blog(request, id):
-    blog = Blog.objects.get(id=id, publish=True)
+    blog = Blog.objects.get(id=id)
 
     context = {
         "top_banner": TopBanner.objects.filter(active=True).last(),

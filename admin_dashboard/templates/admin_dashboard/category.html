@@ -1,0 +1,79 @@
+{% extends "base_admin.html" %}
+
+{% block content %}
+
+<body class="bg-theme bg-theme7">
+	<!-- wrapper -->
+	<div class="wrapper">
+		<div class="page-wrapper">
+			{% include "sidebar.html" %}
+
+			<div class="page-content">
+
+
+				<div class="row">
+					<div class="col-md-6 mx-auto mb-5">
+						<div class="card shadow">
+							<div class="card-header bg-primary text-white">
+								<h4 class="mb-0">اضافه کردن دسته بندی جدید</h4>
+							</div>
+							<div class="card-body">
+								<form method="POST" enctype="multipart/form-data">
+									{% csrf_token %}
+									<div class="mb-3">
+										<label for="name" class="form-label">نام</label>
+										<input type="text" name="name" id="name" class="form-control" required>
+									</div>
+									<div class="mb-3">
+										<label for="slug" class="form-label">آدرس</label>
+										<input type="text" name="slug" id="slug" class="form-control" required>
+									</div>
+									<div class="mb-3">
+										<label for="picture" class="form-label">عکس</label>
+										<input type="file" name="picture" id="picture" class="form-control">
+									</div>
+									<button type="submit" class="btn btn-success w-100">ذحیره</button>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<h3 class="text-center mb-3">همه دسته بندی ها</h3>
+				<div class="table-responsive">
+					<table class="table table-bordered table-hover bg-dark">
+						<thead class="table-dark">
+							<tr>
+								<th>نام</th>
+								<th>آدرس</th>
+								<th>تصویر</th>
+								<th>عملیات</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for category in categories %}
+							<tr>
+								<td>{{ category.name }}</td>
+								<td>{{ category.slug }}</td>
+								<td>
+									{% if category.picture %}
+									<img src="{{ category.picture.url }}" alt="Image" width="80">
+									{% else %}
+									<span class="text-muted">No Image</span>
+									{% endif %}
+								</td>
+								<td>
+									<a href="{% url "admin_deletecategory_url" category.id %}" class="btn btn-danger">حذف</a>
+								</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+	</div>
+	<!-- end wrapper -->
+</body>
+{% endblock content %}

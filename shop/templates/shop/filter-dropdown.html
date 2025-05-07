@@ -4,7 +4,27 @@
 
 {% block content %}
 {% include "header.html" %}
-
+<style>
+  .pagination {
+    text-align: center;
+    margin: 20px 0;
+  }
+  
+  .pagination .step-links a, .pagination .step-links strong {
+    margin: 0 5px;
+    padding: 5px 10px;
+    text-decoration: none;
+    border: 1px solid #ccc;
+    color: #333;
+  }
+  
+  .pagination .step-links strong {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+  }
+  </style>
+  
 <div class="filter-dropdown-section mt-110 mb-110">
   <div class="container-xl container-fluid">
     <div class="shop-columns-title-section mb-40">
@@ -231,39 +251,27 @@
   </div>
 </div>
 
-<nav class="shop-pagination mt-5 mb-2">
-  <ul class="pagination-list">
-    {% if products.has_other_pages %}
-      {% if products.number > 3 %}
-      <li>
-        <a href="?page=1{% if request.GET %}&{{ request.GET.urlencode|safe|cut:'page='|cut:products.number|stringformat:'s' }}{% endif %}">1</a>
-      </li>
-      {% if products.number > 4 %}
-        <li>
-        <a href="#"><i class="bi bi-three-dots"></i></a>
-        </li>
-      {% endif %}
-      {% endif %}
-      {% for i in products.paginator.page_range %}
-      {% if i >= products.number|add:'-2' and i <= products.number|add:'2' %}
-        <li>
-        <a href="?page={{ i }}{% if request.GET %}&{{ request.GET.urlencode|safe|cut:'page='|cut:products.number|stringformat:'s' }}{% endif %}" {% if products.number == i %}class="active"{% endif %}>{{ i }}</a>
-        </li>
-      {% endif %}
-      {% endfor %}
-      {% if products.number < products.paginator.num_pages|add:'-2' %}
-      {% if products.number < products.paginator.num_pages|add:'-3' %}
-        <li>
-        <a href="#"><i class="bi bi-three-dots"></i></a>
-        </li>
-      {% endif %}
-      <li>
-        <a href="?page={{ products.paginator.num_pages }}{% if request.GET %}&{{ request.GET.urlencode|safe|cut:'page='|cut:products.number|stringformat:'s' }}{% endif %}">{{ products.paginator.num_pages }}</a>
-      </li>
-      {% endif %}
+<div class="pagination" style="margin-top: 20px;">
+  <span class="step-links">
+    {% if products.has_previous %}
+      <a href="?page=1">&laquo; First</a>
+      <a href="?page={{ products.previous_page_number }}">Previous</a>
     {% endif %}
-  </ul>
-</nav>
+
+    {% for num in products.paginator.page_range %}
+      {% if products.number == num %}
+        <strong>{{ num }}</strong>
+      {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+        <a href="?page={{ num }}">{{ num }}</a>
+      {% endif %}
+    {% endfor %}
+
+    {% if products.has_next %}
+      <a href="?page={{ products.next_page_number }}">Next</a>
+      <a href="?page={{ products.paginator.num_pages }}">Last &raquo;</a>
+    {% endif %}
+  </span>
+</div>
 
 </div>
 </div>

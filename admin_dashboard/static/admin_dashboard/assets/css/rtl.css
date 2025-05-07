@@ -1,0 +1,43 @@
+body:not(i) {
+    font-family: var(--third-font) !important
+}
+#plotId * {
+    font-family: var(--third-font);
+}
+body , [role="application"],
+select+.select2-container--bootstrap-5,
+[class="apexcharts-legend apexcharts-align-center position-bottom"] ,
+.apexcharts-legend.position-top.apexcharts-align-right,
+.apexcharts-legend.position-top.apexcharts-align-left,
+.apexcharts-legend-series {
+    direction: rtl !important;
+}
+
+ul.dropdown-menu.show {
+    transform: translateY(40px) !important;
+}
+
+
+i {
+    vertical-align: middle;
+}
+
+
+foreignObject , 
+text[text-anchor="start"],
+#SvgjsG1465 {
+    direction: ltr;
+}
+
+
+.form-control , [role="application"] , .select2-results__option {
+    text-align: right;
+}
+
+* {
+    letter-spacing: 0 !important;
+}
+.bx-arrow-back
+{
+      transform: rotateY(180deg);
+}

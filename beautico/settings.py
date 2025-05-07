@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "shop",
     "wish",
-    "django.contrib.humanize"
+    "django.contrib.humanize",
+    "admin_dashboard"
 ]
 
 MIDDLEWARE = [

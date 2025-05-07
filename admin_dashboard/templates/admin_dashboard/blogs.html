@@ -1,0 +1,80 @@
+{% extends "base_admin.html" %}
+
+{% block content %}
+
+
+<body class="bg-theme bg-theme7">
+	<!-- wrapper -->
+	<div class="wrapper">
+		{% include "sidebar.html" %}
+
+		<div class="page-wrapper">
+			<div class="page-content">
+
+				<div class="container my-4">
+					<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+						{% for blog in blogs %}
+						<div class="col-lg-3 col-md-4 col-6">
+							<div class="card h-100">
+							<img src="{{ blog.image.url }}" class="card-img-top" alt="{{ blog.title }}">
+							<div class="card-body">
+								<h5 class="card-title">{{ blog.title }}</h5>
+								<p class="card-text">{{ blog.description|truncatechars:100 }}</p>
+							</div>
+							<div class="card-footer">
+
+
+								<div class="w-100 d-flex flex-row">
+									<small class="text-muted">نویسنده: {{ blog.author }}</small>
+									<a class="btn btn-warning" data-id="{{blog.id}}" href="{% url "eidt_blog_url" blog.id %}">ویرایش</a>
+									<button class="btn btn-danger btn-delete-blog" data-id="{{blog.id}}">حذف</button>
+								</div>
+			
+							</div>
+							</div>
+						</div>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+	<!-- end wrapper -->
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script>
+	  $(document).ready(function () {
+		$('.btn-delete-blog').click(function () {
+		  const blogId = $(this).data('id');
+		  const card = $(this).closest('.col-lg-3');
+	
+		  if (confirm('آیا از حذف بلاگ مطمئن هستید؟')) {
+			$.ajax({
+			  url: '{% url "delete_blog_url" %}',  // مسیر حذف
+			  method: 'POST',
+			  data: {
+				'id': blogId,
+				'csrfmiddlewaretoken': '{{ csrf_token }}',
+			  },
+			  success: function (res) {
+				if (res.success) {
+				  location.reload()
+				} 
+				else {
+				  alert('حذف با خطا مواجه شد.');
+				}
+			  },
+			  error: function (e) {
+				console.log(e);
+				
+				alert('ارتباط با سرور برقرار نشد.');
+			  }
+			});
+		  }
+		});
+	  });
+	</script>
+</body>
+
+
+{% endblock content %}

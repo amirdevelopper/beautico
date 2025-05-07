@@ -1,0 +1,101 @@
+{% load static %}
+{% load humanize %}
+
+<div class="sidebar-wrapper" data-simplebar="true">
+    <div class="sidebar-header">
+        <div>
+            <img src="{% static "admin_dashboard/assets/images/logo-icon.png" %}" class="logo-icon" alt="logo icon">
+        </div>
+        <div>
+            <h4 class="logo-text">داشبورد</h4>
+        </div>
+        <div class="toggle-icon ms-auto"><i class='bx bx-arrow-back'></i>
+        </div>
+     </div>
+    <!--navigation-->
+    <ul class="metismenu" id="menu">
+        <li>
+            <a href="{% url "admin_index_url" %}" class="">
+                <div class="menu-title">صفحه اصلی</div>
+            </a>
+        </li>
+        <li>
+            <a href="javascript:;" class="has-arrow">
+                <div class="parent-icon"><i class="bx bx-category"></i>
+                </div>
+                <div class="menu-title">اپلیکیشن</div>
+            </a>
+            <ul>
+                <li> <a href="ecommerce-orders.html"><i class='bx bx-radio-circle'></i>سفارشات</a>
+                </li>
+
+                <li> <a href="{% url "admin_contact_url" %}"><i class='bx bx-radio-circle'></i>مخاطبین</a>
+                </li>
+                
+                <li> <a href="{% url "admin_invoice_url" %}"><i class='bx bx-radio-circle'></i>فاکتور</a>
+                </li>
+               
+            </ul>
+        </li>
+        <li class="menu-label">عناصر رابط کاربری</li>
+        
+        <li>
+            <a href="javascript:;" class="has-arrow">
+                <div class="parent-icon"><i class='bx bx-cart'></i>
+                </div>
+                <div class="menu-title">تجارت الکترونیک</div>
+            </a>
+            <ul>
+                <li> <a href="{% url "admin_products_url" %}"><i class='bx bx-radio-circle'></i>محصولات</a>
+                </li>
+                <li> <a href="{% url "admin_newproduct_url" %}"><i class='bx bx-radio-circle'></i>محصول جدید</a>
+                </li>
+
+                <li> <a href="{% url "admin_category_url" %}"><i class='bx bx-radio-circle'></i>دسته بندی</a>
+                </li>
+                <li> <a href="{% url "admin_subcategory_url" %}"><i class='bx bx-radio-circle'></i>ساب دسته بندی</a>
+                </li>
+            </ul>
+        </li>
+        
+        <li>
+            <a class="has-arrow" href="javascript:;">
+                <div class="parent-icon"><i class="bx bx-repeat"></i>
+                </div>
+                <div class="menu-title">محتوا</div>
+            </a>
+            <ul>
+                <li> <a href="{% url "admin_newblog_url" %}"><i class='bx bx-radio-circle'></i>بلاگ جدید</a>
+                </li>
+                <li> <a href="{% url "admin_newtag_url" %}"><i class='bx bx-radio-circle'></i>تگ جدید</a>
+                </li>
+                <li> <a href="{% url "admin_blogs_url" %}"><i class='bx bx-radio-circle'></i>بلاگ ها</a>
+                </li>
+            </ul>
+        </li>
+        
+        
+
+        <li class="menu-label">صفحات</li>
+        <li>
+            <a class="has-arrow" href="javascript:;">
+                <div class="parent-icon"><i class="bx bx-lock"></i>
+                </div>
+                <div class="menu-title">احراز هویت</div>
+            </a>
+            <ul>
+                <li><a href="{% url "admin_logout_url" %}"><i class='bx bx-radio-circle'></i>خروج</a></li>
+            </ul>
+        </li>
+
+        <li class="menu-label">دیگر صفحات</li>
+        <li>
+            <a href="tel:09190063634" target="_blank">
+                <div class="parent-icon"><i class="bx bx-support"></i>
+                </div>
+                <div class="menu-title">برنامه نویس</div>
+            </a>
+        </li>
+    </ul>
+    <!--end navigation-->
+</div>

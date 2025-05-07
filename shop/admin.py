@@ -34,8 +34,8 @@ class SubCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['name', 'subcategory', 'price', 'special_price', 'available', 'is_special', 'stock']
-    list_filter = ['subcategory', 'available', 'is_special', 'created_at']
+    list_display = ['name', 'subcategory', 'price', 'special_price', 'is_special', 'stock']
+    list_filter = ['subcategory', 'is_special', 'created_at']
     search_fields = ['name', 'description']
     readonly_fields = ['created_at', 'discount_percent']
 

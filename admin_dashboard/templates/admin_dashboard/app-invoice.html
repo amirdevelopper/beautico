@@ -1,0 +1,18 @@
+{% extends "base_admin.html" %}
+{% block content %}
+
+<body class="bg-theme bg-theme7">
+	<div class="wrapper">
+		{% include "sidebar.html" %}
+
+		<div class="page-wrapper">
+			<div class="page-content">
+				<form method="post">
+					{% csrf_token %}
+					{{ content|safe }}
+				</form>
+			</div>
+		</div>
+	</div>
+
+{% endblock %}

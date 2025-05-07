@@ -1,0 +1,77 @@
+{% extends "base_admin.html" %}
+
+{% block content %}
+
+
+<body class="bg-theme bg-theme7">
+	<!-- wrapper -->
+	<div class="wrapper">
+		<div class="page-wrapper">
+			{% include "sidebar.html" %}
+			<div class="page-content">
+				<div class="row">
+					<div class="col-md-6 mx-auto mb-5">
+						<div class="card shadow">
+							<div class="card-header bg-secondary text-white">
+								<h4 class="mb-0">اضافه کردن ساب دسته بندی</h4>
+							</div>
+							<div class="card-body">
+								<form method="POST">
+									{% csrf_token %}
+									<div class="mb-3">
+										<label for="category" class="form-label">دسته بندی</label>
+										<select name="category" id="category" class="form-select" required>
+											{% for cat in categories %}
+											<option value="{{ cat.id }}">{{ cat.name }}</option>
+											{% endfor %}
+										</select>
+									</div>
+									<div class="mb-3">
+										<label for="name" class="form-label">نام ساب دسته بندی</label>
+										<input type="text" name="name" id="name" class="form-control" required>
+									</div>
+									<div class="mb-3">
+										<label for="slug" class="form-label">آدرس ساب دسته بندی</label>
+										<input type="text" name="slug" id="slug" class="form-control" required>
+									</div>
+									<button type="submit" class="btn btn-success w-100">ذخیره</button>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- جدول نمایش زیردسته‌ها -->
+				<h3 class="text-center mb-3">همه ساب  دسته بندی</h3>
+				<div class="table-responsive">
+					<table class="table table-bordered table-hover bg-dark">
+						<thead class="table-dark">
+							<tr>
+								<th>دسته بندی</th>
+								<th>نام ساب دسته بندی</th>
+								<th>آدرس ساب دسته بندی</th>
+								<th>عملیات</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for sub in subcategories %}
+							<tr>
+								<td>{{ sub.category.name }}</td>
+								<td>{{ sub.name }}</td>
+								<td>{{ sub.slug }}</td>
+								<td>
+									<a class="btn btn-danger" href="{% url "admin_deletesubcategory_url" sub.id %}">حذف</a>
+								</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+	</div>
+	<!-- end wrapper -->
+</body>
+
+{% endblock content %}

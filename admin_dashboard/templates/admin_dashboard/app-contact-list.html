@@ -1,0 +1,111 @@
+{% extends "base_admin.html" %}
+{% block content %}
+{% load static %}
+
+<!--wrapper-->
+<body class="bg-theme bg-theme7">
+<div class="wrappe">
+	{% include "sidebar.html" %}
+
+	<div class="page-wrapper">
+		<div class="page-content">
+			<h6 class="mb-0 text-uppercase">لیست مخاطبین</h6>
+			<hr />
+
+			<div class="row row-cols-1 row-cols-lg-2 row-cols-xl-4">
+				{% for user in page_obj %}
+					<div class="col-lg-3 col-md-4 col-6">
+						<div class="card radius-15">
+							<div class="card-body text-center">
+								<div class="p-4 border radius-15">
+									<img src="{% static "admin_dashboard/assets/images/avatars/avatar-4.png" %}" width="110" height="110"
+										class="rounded-circle shadow" alt="">
+									<h5 class="mb-0 mt-5">{{ user.first_name }} {{ user.last_name }}</h5>
+									<p class="mb-3">{{ user.username }}</p>
+									<div class="d-grid">
+										<a href="#" class="btn btn-light radius-15" data-bs-toggle="modal" data-bs-target="#userModal-{{ user.id }}">
+											اطلاعات کامل
+										</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Modal -->
+					<div class="modal fade" id="userModal-{{ user.id }}" tabindex="-1" aria-labelledby="userModalLabel-{{ user.id }}" aria-hidden="true">
+						<div class="modal-dialog modal-dialog-centered">
+							<div class="modal-content">
+								<div class="modal-header">
+									<h5 class="modal-title" id="userModalLabel-{{ user.id }}">اطلاعات کاربر</h5>
+									<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+								</div>
+								<div class="modal-body text-center">
+									<img src="{% static "admin_dashboard/assets/images/avatars/avatar-4.png" %}" width="100" height="100"
+										class="rounded-circle shadow mb-3" alt="">
+									<h5>{{ user.first_name }} {{ user.last_name }}</h5>
+									<p><strong>نام کاربری:</strong> {{ user.username }}</p>
+									<p><strong>ایمیل:</strong> {{ user.email }}</p>
+									<p><strong>آخرین ورود:</strong> {{ user.last_login|date:"Y/m/d H:i" }}</p>
+									<p><strong>تاریخ عضویت:</strong> {{ user.date_joined|date:"Y/m/d H:i" }}</p>
+									{% if user.is_superuser %}
+										<span class="badge bg-danger">مدیر</span>
+									{% elif user.is_staff %}
+										<span class="badge bg-primary">کارمند</span>
+									{% else %}
+										<span class="badge bg-secondary">کاربر عادی</span>
+									{% endif %}
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">بستن</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				{% endfor %}
+			</div>
+
+			<!-- Pagination controls -->
+			<div class="mt-4 d-flex justify-content-center">
+				<nav>
+					<ul class="pagination">
+						{% if page_obj.has_previous %}
+							<li class="page-item">
+								<a class="page-link" href="?page={{ page_obj.previous_page_number }}">قبلی</a>
+							</li>
+						{% else %}
+							<li class="page-item disabled">
+								<span class="page-link">قبلی</span>
+							</li>
+						{% endif %}
+
+						{% for num in page_obj.paginator.page_range %}
+							{% if page_obj.number == num %}
+								<li class="page-item active">
+									<span class="page-link">{{ num }}</span>
+								</li>
+							{% else %}
+								<li class="page-item">
+									<a class="page-link" href="?page={{ num }}">{{ num }}</a>
+								</li>
+							{% endif %}
+						{% endfor %}
+
+						{% if page_obj.has_next %}
+							<li class="page-item">
+								<a class="page-link" href="?page={{ page_obj.next_page_number }}">بعدی</a>
+							</li>
+						{% else %}
+							<li class="page-item disabled">
+								<span class="page-link">بعدی</span>
+							</li>
+						{% endif %}
+					</ul>
+				</nav>
+			</div>
+
+		</div>
+	</div>
+</div>
+</body>
+{% endblock content %}
